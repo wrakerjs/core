@@ -1,0 +1,44 @@
+{
+  "name": "wraker",
+  "version": "0.1.0",
+  "main": "./dist/wraker.js",
+  "module": "./dist/wraker.mjs",
+  "types": "./dist/wraker.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/wraker.mjs",
+      "require": "./dist/wraker.js",
+      "types": "./dist/wraker.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "test:build": "tsc -p tsconfig.test.json",
+    "test:run": "node bin/tests/index.js",
+    "test": "npm run test:build && npm run test:run"
+  },
+  "type": "module",
+  "keywords": [
+    "worker"
+  ],
+  "license": "MIT",
+  "description": "Wrapper for Workers",
+  "author": "josselinonduty <contact@josselinonduty.fr>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/josselinonduty/wraker.git"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.21.4",
+    "rollup": "^4.18.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "web-worker": "^1.2.0"
+  }
+}
