@@ -1,6 +1,6 @@
 export interface WrakerRequest {
   // method: string;
-  body: Event;
+  body: any;
 }
 
 export interface WrakerResponse {

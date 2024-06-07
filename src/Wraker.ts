@@ -1,5 +1,3 @@
-import Worker from "web-worker";
-
 import { EventHandler } from "./Event";
 
 export interface ListenerHandler {
