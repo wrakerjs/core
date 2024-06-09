@@ -1,14 +1,16 @@
 {
   "name": "wraker",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "./dist/wraker.js",
   "module": "./dist/wraker.mjs",
   "types": "./dist/wraker.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/wraker.d.ts",
       "import": "./dist/wraker.mjs",
       "require": "./dist/wraker.js",
-      "types": "./dist/wraker.d.ts"
+      "node": "./dist/wraker.js",
+      "default": "./dist/wraker.js"
     }
   },
   "scripts": {
