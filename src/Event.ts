@@ -1,1 +1,1 @@
-export type EventHandler = (event: Event) => void;
+export type EventHandler = (event: Event | MessageEvent | ErrorEvent) => void;
