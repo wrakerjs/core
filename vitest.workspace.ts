@@ -4,21 +4,28 @@ export default defineWorkspace([
   {
     extends: "./vite.config.ts",
     test: {
-      name: "chrome",
+      name: "chromium",
       browser: {
-        name: "chrome",
+        name: "chromium",
       },
     },
   },
   {
     extends: "./vite.config.ts",
     test: {
-      name: "edge",
+      name: "webkit",
       browser: {
-        name: "edge",
+        name: "webkit",
       },
     },
   },
-  // TODO: Add Firefox
-  // TODO: Add Safari
+  {
+    extends: "./vite.config.ts",
+    test: {
+      name: "firefox",
+      browser: {
+        name: "firefox",
+      },
+    },
+  },
 ]);
