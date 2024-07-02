@@ -11,10 +11,16 @@ export interface EventHandlerOptions {
 export class Wraker {
   private _worker: Worker;
   private _handlers: Map<string, ListenerHandler[]> = new Map();
+  private _readyPromise: Promise<boolean>;
 
   constructor(scriptURL: URL, options?: WorkerOptions) {
     this._worker = new Worker(scriptURL, options);
     this._init();
+    this._readyPromise = new Promise((resolve) => {
+      this.once("ready", () => {
+        resolve(true);
+      });
+    });
   }
 
   private _init(): void {
@@ -104,6 +110,10 @@ export class Wraker {
 
     this._removeHandler(`wraker:${command}`);
     callback();
+  }
+
+  public ready() {
+    return this._readyPromise;
   }
 
   public emit(command: string, data?: any): void {

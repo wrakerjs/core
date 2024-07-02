@@ -43,8 +43,6 @@ worker.on("pong", (event) => {
 worker.emit("ping");
 ```
 
-`url` can reference a classic worker or module worker with option `type: "module"`, as well as plain `data:<javascript>`.
-
 ## License
 
 Wraker is licensed under the MIT License. See [LICENSE](LICENSE) for the full license text.
