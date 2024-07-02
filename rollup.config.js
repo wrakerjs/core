@@ -3,7 +3,7 @@ import esbuild from "rollup-plugin-esbuild";
 import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
 
-import packageJson from "./package.json" assert { type: "json" };
+import packageJson from "./package.json" with { type: "json" };
 const name = packageJson.main.replace(/\.js$/, "");
 
 /**
