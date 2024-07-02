@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.45.0-jammy
 
     strategy:
       matrix:
@@ -25,16 +27,16 @@ jobs:
         with:
           path: ./node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - name: Cache playwright binaries
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('package-lock.json') }}
+      # - name: Cache playwright binaries
+      #   uses: actions/cache@v3
+      #   id: playwright-cache
+      #   with:
+      #     path: ~/.cache/ms-playwright
+      #     key: playwright-${{ hashFiles('package-lock.json') }}
 
       - run: npm ci
         if: steps.modules-cache.outputs.cache-hit != 'true'
       - run: npm run build
-      - run: npm run pretest
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+      # - run: npm run pretest
+      #   if: steps.playwright-cache.outputs.cache-hit != 'true'
       - run: npm run test
