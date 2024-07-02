@@ -10,10 +10,11 @@ export default defineConfig({
     reporters: ["verbose"],
 
     browser: {
-      name: "chrome",
+      name: "chromium",
       enabled: true,
       headless: true,
       isolate: true,
+      provider: "playwright",
     },
   },
 
