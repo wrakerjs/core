@@ -1,4 +1,4 @@
-import { Wraker } from "./Wraker";
+import { Wraker } from "..";
 import worker from "./fixtures/worker?url";
 
 import { it, describe, expect, beforeEach } from "vitest";
