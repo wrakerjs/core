@@ -10,40 +10,9 @@ npm install wraker@latest
 
 ## Usage
 
-Wraker supports `require` and `import` syntax.
+⚠ This version is working in progress!
 
-### Worker Thread
-
-```javascript
-import { WrakerApp } from "wraker";
-
-const app = new WrakerApp();
-
-app.use("ping", (req, res) => {
-  res.send("Pong");
-});
-
-app.expose();
-```
-
-### Main Thread
-
-```javascript
-import { Wraker } from "wraker";
-
-const url = new URL("./worker.js", import.meta.url);
-const worker = new Wraker(url, {
-  type: "module",
-});
-
-worker.on("pong", (event) => {
-  console.log(event.data); // "Pong"
-});
-
-worker.emit("ping");
-```
-
-`url` can reference a classic worker or module worker with option `type: "module"`, as well as plain `data:<javascript>`.
+Majors changes will happen in the next versions, so please be careful when using the lib.
 
 ## License
 

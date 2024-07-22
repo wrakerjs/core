@@ -1,0 +1,44 @@
+name: Node.js CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.45.0-jammy
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Cache dependencies
+        id: modules-cache
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: modules-${{ hashFiles('package-lock.json') }}
+      # - name: Cache playwright binaries
+      #   uses: actions/cache@v3
+      #   id: playwright-cache
+      #   with:
+      #     path: ~/.cache/ms-playwright
+      #     key: playwright-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+        if: steps.modules-cache.outputs.cache-hit != 'true'
+      - run: npm run build
+      # - run: npm run pretest
+      #   if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - run: npm run test
+        env:
+          HOME: /root

@@ -2,6 +2,8 @@ node_modules
 bin
 src
 rollup.config.js
+vite.config.ts
+vitest.workspace.ts
 tsconfig.json
-tsconfig.test.json
 *.tgz
+docs

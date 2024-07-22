@@ -1,9 +1,9 @@
 import dts from "rollup-plugin-dts";
 import esbuild from "rollup-plugin-esbuild";
-import resolve from "rollup-plugin-node-resolve";
-import commonjs from "rollup-plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
 
-import packageJson from "./package.json" assert { type: "json" };
+import packageJson from "./package.json" with { type: "json" };
 const name = packageJson.main.replace(/\.js$/, "");
 
 /**
@@ -12,7 +12,7 @@ const name = packageJson.main.replace(/\.js$/, "");
  */
 const bundle = (config) => ({
   ...config,
-  input: "src/index.ts",
+  input: "./src/index.ts",
   external: (id) => !/^[./]/.test(id),
 });
 
