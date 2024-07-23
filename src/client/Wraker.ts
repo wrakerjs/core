@@ -14,7 +14,7 @@ export type WrakerRequestId = string;
 export type WrakerRequest = {};
 
 export class Wraker {
-  private _worker: Worker;
+  private _worker: Worker = null as unknown as Worker;
   private _requests: Map<
     WrakerRequestId,
     {
@@ -23,9 +23,10 @@ export class Wraker {
     }
   > = new Map();
 
-  constructor(scriptURL: string | URL, options?: WorkerOptions) {
-    this._worker = new Worker(scriptURL, options);
+  constructor(scriptURL?: string | URL, options?: WorkerOptions) {
+    if (!scriptURL) return;
 
+    this._worker = new Worker(scriptURL, options);
     this._init();
   }
 
@@ -47,8 +48,10 @@ export class Wraker {
   }
 
   public static fromWorker(worker: Worker) {
-    const wraker = new Wraker("");
+    const wraker = new Wraker();
+
     wraker._worker = worker;
+    wraker._init.call(wraker);
     return wraker;
   }
 

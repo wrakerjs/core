@@ -1,8 +1,8 @@
 import { it, describe, expect } from "vitest";
 
 import { Wraker } from ".";
-import fixtureWorkerUrl from "../tests/fixtures/worker?url";
-import FixtureWorker from "../tests/fixtures/worker?worker";
+import fixtureWorkerUrl from "../tests/fixtures/basic?url";
+import FixtureWorker from "../tests/fixtures/basic?worker";
 
 describe("Wraker", () => {
   it("should initialize from Worker interface", async () => {
