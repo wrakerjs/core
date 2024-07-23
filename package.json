@@ -1,6 +1,6 @@
 {
   "name": "wraker",
-  "version": "0.1.4",
+  "version": "0.2.1",
   "main": "./dist/wraker.js",
   "module": "./dist/wraker.mjs",
   "types": "./dist/wraker.d.ts",
@@ -17,7 +17,8 @@
     "build": "rollup -c",
     "dev": "vitest --watch",
     "test": "vitest --no-watch",
-    "publish": "npm run build && npm publish"
+    "publish": "npm run build && npm publish",
+    "docs": "typedoc --out ./docs ./src/index.ts"
   },
   "type": "module",
   "keywords": [

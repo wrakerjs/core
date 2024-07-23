@@ -1,0 +1,48 @@
+name: Deploy documentation to Github Pages
+on:
+  push:
+    branches: [$default-branch]
+
+jobs:
+  publish:
+    permissions:
+      id-token: write
+      pages: write
+
+    environment:
+      name: github-pages
+      url: "${{ steps.deployment.outputs.page_url }}"
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+          cache: "npm"
+
+      - name: Cache dependencies
+        id: modules-cache
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: modules-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+        if: steps.modules-cache.outputs.cache-hit != 'true'
+
+      - name: Build docs
+        id: build
+        run: npm run build
+
+      - id: upload
+        name: Upload pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "docs/"
+
+      - id: deploy
+        name: Deploy documentation to Github Pages
+        uses: actions/deploy-pages@v4

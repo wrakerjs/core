@@ -1,6 +1,9 @@
 name: Node.js CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    branches: [$default-branch]
 
 jobs:
   build:
@@ -27,18 +30,10 @@ jobs:
         with:
           path: ./node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      # - name: Cache playwright binaries
-      #   uses: actions/cache@v3
-      #   id: playwright-cache
-      #   with:
-      #     path: ~/.cache/ms-playwright
-      #     key: playwright-${{ hashFiles('package-lock.json') }}
 
       - run: npm ci
         if: steps.modules-cache.outputs.cache-hit != 'true'
       - run: npm run build
-      # - run: npm run pretest
-      #   if: steps.playwright-cache.outputs.cache-hit != 'true'
       - run: npm run test
         env:
           HOME: /root
