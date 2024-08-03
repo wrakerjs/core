@@ -7,3 +7,5 @@ vitest.workspace.ts
 tsconfig.json
 *.tgz
 docs
+.github
+types/vitest.d.ts
