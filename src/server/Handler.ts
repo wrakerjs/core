@@ -83,6 +83,22 @@ export interface WrakerAppRequestOptions {
   body?: any;
   headers?: Record<string, string>;
 }
+
+export interface WrakerAppRequestConstructorOptions
+  extends WrakerAppRequestOptions {
+  sendFn: (args: {
+    headers: Record<string, string>;
+    status: number;
+    data: any;
+  }) => void;
+
+  sendErrorFn: (args: {
+    headers: Record<string, string>;
+    status: number;
+    message: any;
+  }) => void;
+}
+
 export class WrakerAppRequest implements WrakerAppRequestOptions {
   public method: Method;
   public path: string;
@@ -91,7 +107,7 @@ export class WrakerAppRequest implements WrakerAppRequestOptions {
   public res: WrakerAppResponse;
   public readonly app: WrakerRouter;
 
-  constructor(app: WrakerRouter, options: WrakerAppRequestOptions) {
+  constructor(app: WrakerRouter, options: WrakerAppRequestConstructorOptions) {
     this.app = app;
 
     this.method = options.method;
@@ -101,6 +117,8 @@ export class WrakerAppRequest implements WrakerAppRequestOptions {
 
     this.res = new WrakerAppResponse({
       req: this,
+      sendFn: options.sendFn,
+      sendErrorFn: options.sendErrorFn,
     });
   }
 }
@@ -109,14 +127,43 @@ export interface WrakerAppResponseOptions {
   req: WrakerAppRequest;
 }
 
+export interface WrakerAppResponseConstructorOptions
+  extends WrakerAppResponseOptions {
+  sendFn: (args: {
+    headers: Record<string, string>;
+    status: number;
+    data: any;
+  }) => void;
+  sendErrorFn: (args: {
+    headers: Record<string, string>;
+    status: number;
+    message: any;
+  }) => void;
+}
+
 export class WrakerAppResponse implements WrakerAppResponseOptions {
   private _status: number = 0;
   public headers: Record<string, string> = {};
   public body: Record<string, any> = {};
   public req: WrakerAppRequest;
 
-  constructor(options: WrakerAppResponseOptions) {
+  private _sendFn: (args: {
+    headers: Record<string, string>;
+    status: number;
+    data: any;
+  }) => void;
+  private _sendErrorFn: (args: {
+    headers: Record<string, string>;
+    status: number;
+    message: any;
+  }) => void;
+
+  private _finished: boolean = false;
+
+  constructor(options: WrakerAppResponseConstructorOptions) {
     this.req = options.req;
+    this._sendFn = options.sendFn;
+    this._sendErrorFn = options.sendErrorFn;
   }
 
   public get statusCode(): number {
@@ -132,15 +179,39 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
     return this;
   }
 
-  /**
-   * ! Avoid overwriting the functions in WrakerRouter.
-   * TODO: Find a way/design pattern to make this work.
-   */
-  public send(body: any): void {}
+  public get finished(): boolean {
+    return this._finished;
+  }
 
-  public json(body: any): void {}
+  public send(body: any): void {
+    this._sendFn({
+      headers: this.headers,
+      status: this.statusCode,
+      data: body,
+    });
 
-  public end(): void {}
+    this.end();
+  }
+
+  public json(body: any): void {
+    try {
+      const json = JSON.stringify(body);
+      this.headers["Content-Type"] = "application/json";
+      this.send(json);
+    } catch (error) {
+      this._sendErrorFn({
+        headers: this.headers,
+        message: "Body is not a valid JSON object",
+        status: 500,
+      });
+    }
+
+    this.end();
+  }
+
+  public end(): void {
+    this._finished = true;
+  }
 }
 
 export type StructuredEventHandler = {

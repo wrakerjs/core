@@ -227,7 +227,11 @@ export class WrakerRouter extends EventTarget implements Routable {
         [method.toLowerCase(), "all"].includes(handler.method)
     );
 
-    const request = new WrakerAppRequest(this, _request);
+    const request = new WrakerAppRequest(this, {
+      ..._request,
+      sendFn: this._send.bind(this),
+      sendErrorFn: this._sendError.bind(this),
+    });
     request.res.headers = request.headers || {};
 
     let finished = false;
@@ -246,36 +250,6 @@ export class WrakerRouter extends EventTarget implements Routable {
       function next() {
         nextUsed = true;
       }
-
-      request.res.send = (body: any) => {
-        this._send({
-          headers: request.res.headers,
-          status: request.res.statusCode,
-          data: body,
-        });
-
-        finished = true;
-      };
-
-      request.res.json = (body: any) => {
-        try {
-          const json = JSON.stringify(body);
-          request.res.headers["Content-Type"] = "application/json";
-          request.res.send(json);
-        } catch (error) {
-          this._sendError({
-            headers: request.res.headers,
-            message: "Body is not a volid JSON object",
-            status: 500,
-          });
-        }
-
-        finished = true;
-      };
-
-      request.res.end = () => {
-        finished = true;
-      };
 
       try {
         await layer.handler(request, request.res, next);
