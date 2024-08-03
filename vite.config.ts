@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     include: ["src/**/*.spec.ts", "tests/**/*.spec.ts"],
     exclude: ["node_modules", "dist"],
-    silent: true,
+    silent: false,
     testTimeout: 1000,
 
     reporters: ["verbose"],
@@ -16,6 +16,7 @@ export default defineConfig({
       headless: true,
       isolate: true,
       provider: "playwright",
+      screenshotFailures: false,
     },
   },
 

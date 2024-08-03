@@ -1,6 +1,4 @@
 import type { Method } from "../common";
-import type { AppResponse } from "../server";
-
 const uuid = crypto.randomUUID.bind(crypto);
 
 export type WrakerFetchOptions = {
@@ -31,20 +29,22 @@ export class Wraker {
   }
 
   protected _init(): void {
-    this._worker.addEventListener(
-      "message",
-      (event: MessageEvent<AppResponse>) => {
-        const data = event.data;
-        const { headers } = event.data;
+    this._worker.addEventListener("message", (event: MessageEvent<any>) => {
+      const data = event.data;
+      const { headers } = event.data;
 
-        const xRequestId = headers["X-Request-ID"];
-        const request = this._requests.get(xRequestId);
-        if (!request) return;
+      const xRequestId = headers["X-Request-ID"];
+      const request = this._requests.get(xRequestId);
+      if (!request) return;
 
-        this._requests.delete(xRequestId);
-        request.resolve(data);
+      this._requests.delete(xRequestId);
+
+      if (data.error) {
+        request.reject(data);
+        return;
       }
-    );
+      request.resolve(data);
+    });
   }
 
   public static fromWorker(worker: Worker) {
