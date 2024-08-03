@@ -1,7 +1,7 @@
 import { it, describe, expect, vitest } from "vitest";
 import "../tests/utils";
 
-import { WrakerRouter, WrakerApp, AppResponse } from ".";
+import { WrakerRouter, WrakerApp, WrakerAppResponse } from ".";
 import { EventOptions } from "../common";
 
 import workerUrl from "../tests/fixtures/basic?url";
@@ -77,37 +77,43 @@ describe("WrakerApp", () => {
     const handler = vitest.fn();
     app.get("/path", handler);
 
-    const request = {
+    await app.process({
       method: "get",
       path: "/path",
-    };
-    app.process(request);
-
+    });
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
   it("should process event", async () => {
-    const router = new WrakerApp();
+    const app = new WrakerApp();
     const handler = vitest.fn();
-    router.get("/path", handler);
+
+    app.get("/something", handler);
 
     const event = new MessageEvent<EventOptions>("message", {
       data: {
         method: "get",
-        path: "/path",
+        path: "/something",
       },
+    });
+
+    const promise = new Promise<any>((resolve) => {
+      globalThis.postMessage = (message) => {
+        resolve(message);
+      };
     });
 
     globalThis.dispatchEvent(event);
 
+    await promise;
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
   it("should interact with client", async () => {
     const worker = new Worker(workerUrl, { type: "module" });
 
-    const promise = new Promise<AppResponse>((resolve) => {
-      worker.onmessage = (event: MessageEvent) => {
+    const promise = new Promise<WrakerAppResponse>((resolve) => {
+      worker.onmessage = (event: MessageEvent<WrakerAppResponse>) => {
         resolve(event.data);
       };
     });

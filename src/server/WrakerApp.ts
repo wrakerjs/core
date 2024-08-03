@@ -1,4 +1,4 @@
-import { type AppRequest, type Routable } from "./Handler";
+import { type Routable } from "./Handler";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 import type { EventOptions } from "../common";
 

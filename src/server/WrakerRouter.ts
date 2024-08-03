@@ -1,10 +1,10 @@
 import {
-  AppRequest,
-  AppResponse,
+  WrakerAppRequest,
   EventHandler,
   Routable,
-  StructuredEventHandler,
+  StructuredEventHandler as Layer,
   WrakerAppPath,
+  type WrakerAppRequestOptions,
 } from "./Handler";
 import { Method } from "../common";
 
@@ -13,7 +13,7 @@ export type WrakerRouterOptions = {
 };
 
 export class WrakerRouter extends EventTarget implements Routable {
-  private _stack: Array<StructuredEventHandler> = new Array();
+  private _stack: Array<Layer> = new Array();
   private _path: WrakerAppPath;
 
   constructor(options?: Partial<WrakerRouterOptions>) {
@@ -165,7 +165,7 @@ export class WrakerRouter extends EventTarget implements Routable {
       return this;
     }
 
-    this.all("/", arg);
+    this.all("*", arg);
 
     if (handlers && handlers.length > 0) this.use(...handlers);
 
@@ -180,62 +180,98 @@ export class WrakerRouter extends EventTarget implements Routable {
     return this._stack;
   }
 
-  private _send(data: any) {
-    globalThis.postMessage(data);
+  private _send(args: {
+    headers: Record<string, string>;
+    status: number;
+    data: any;
+  }) {
+    globalThis.postMessage({
+      headers: args.headers,
+      status: args.status,
+      body: args.data,
+    });
   }
 
-  public process(request: AppRequest) {
-    const { method, path } = request;
+  private _sendError(args: {
+    headers: Record<string, string>;
+    status: number;
+    message: any;
+  }) {
+    globalThis.postMessage({
+      headers: args.headers,
+      status: args.status,
+      error: args.message,
+    });
+  }
 
-    const handlers = this._stack.filter(
+  public async process(_request: WrakerAppRequestOptions) {
+    const { method, path } = _request;
+    if (!method || !path) {
+      this._sendError({
+        headers: _request.headers || {},
+        message: "Baq Request",
+        status: 400,
+      });
+      return;
+    }
+
+    if (path === "/something") {
+    }
+
+    const layers = this._stack.filter(
       (handler) =>
-        (handler.path === path ||
+        (handler.path === "*" ||
+          handler.path === path ||
           (handler.handler instanceof WrakerRouter &&
-            path.includes(handler.path))) &&
+            path.startsWith(handler.path))) &&
         [method.toLowerCase(), "all"].includes(handler.method)
     );
 
-    if (handlers.length === 0) return;
-
-    handlers.forEach((eventHandler) => {
-      const handler = eventHandler.handler;
-
-      const strippedPath = path.replace(eventHandler.path, "") ?? "/";
-      const modifiedRequest = { ...request, path: strippedPath };
-      if (!modifiedRequest.body) modifiedRequest.body = {};
-
-      if (handler instanceof WrakerRouter) {
-        handler.process(modifiedRequest);
-        return;
-      }
-
-      if (typeof handler === "function") {
-        handler(
-          modifiedRequest,
-          {
-            status: 200,
-
-            send: (body: any) => {
-              this._send({
-                body,
-                headers: request.headers,
-              });
-            },
-
-            json: (body: any) => {
-              this._send({
-                body: JSON.stringify(body),
-                headers: {
-                  "Content-Type": "application/json",
-                  ...request.headers,
-                },
-              });
-            },
-          } as AppResponse,
-          () => {}
-        );
-        return;
-      }
+    const request = new WrakerAppRequest(this, {
+      ..._request,
+      sendFn: this._send.bind(this),
+      sendErrorFn: this._sendError.bind(this),
     });
+    request.res.headers = request.headers || {};
+
+    let finished = false;
+    for (const layer of layers) {
+      if (finished) break;
+
+      if (layer.handler instanceof WrakerRouter) {
+        await layer.handler.process({
+          ..._request,
+          path: path.slice(layer.path.length) ?? "/",
+        });
+        continue;
+      }
+
+      let nextUsed = false;
+      function next() {
+        nextUsed = true;
+      }
+
+      try {
+        await layer.handler(request, request.res, next);
+        if (!nextUsed) return;
+      } catch (error) {
+        if (request.res.statusCode === 0) request.res.statusCode = 500;
+
+        this._sendError({
+          headers: request.res.headers,
+          message: error instanceof Error ? error.message : error,
+          status: request.res.statusCode,
+        });
+        return;
+      }
+    }
+
+    if (!finished) {
+      this._sendError({
+        headers: _request.headers || {},
+        message: "Not Found",
+        status: 404,
+      });
+    }
   }
 }

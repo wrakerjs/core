@@ -1,5 +1,5 @@
 import { it, describe, expect, vitest } from "vitest";
-import { WrakerRouter, AppRequest } from ".";
+import { WrakerRouter } from ".";
 
 describe("WrakerRouter", () => {
   it("should be well defined", async () => {
@@ -80,17 +80,15 @@ describe("WrakerRouter", () => {
     const handler = vitest.fn();
     router.get("/path", handler);
 
-    let request = {
+    router.process({
       method: "get",
       path: "/path",
-    } as AppRequest;
-    router.process(request);
+    });
 
-    request = {
+    router.process({
       method: "GET",
       path: "/path",
-    } as AppRequest;
-    router.process(request);
+    });
 
     expect(handler).toHaveBeenNthCalledWith(
       2,
@@ -103,7 +101,9 @@ describe("WrakerRouter", () => {
   it("should execute all matching route handlers", async () => {
     const router = new WrakerRouter();
 
-    const handler = vitest.fn();
+    const handler = vitest.fn((_req, _res, next) => {
+      next();
+    });
     router
       .get("/nope", handler)
       .get("/path", handler)
@@ -113,12 +113,10 @@ describe("WrakerRouter", () => {
       .post("/path", handler)
       .all("/path", handler);
 
-    const request = {
+    await router.process({
       method: "get",
       path: "/path",
-    } as AppRequest;
-
-    router.process(request);
+    });
 
     expect(handler).toHaveBeenNthCalledWith(
       4,
@@ -131,21 +129,38 @@ describe("WrakerRouter", () => {
   it("should use handlers", async () => {
     const router = new WrakerRouter();
 
-    const handler = vitest.fn();
+    const handler = vitest.fn((_req, _res, next) => {
+      next();
+    });
     router.use("/", handler).use(handler).use(handler, handler);
 
-    const request = {
+    await router.process({
       method: "get",
       path: "/",
-    } as AppRequest;
-
-    router.process(request);
+    });
     expect(handler).toHaveBeenNthCalledWith(
       4,
       expect.anything(),
       expect.anything(),
       expect.anything()
     );
+  });
+
+  it("should use handlers and break handler chain", async () => {
+    const router = new WrakerRouter();
+
+    const handler = vitest.fn((_req, _res, next) => {
+      next();
+    });
+    const handlerNoNext = vitest.fn();
+
+    router.use("/", handler).use(handlerNoNext).use(handler, handler);
+
+    await router.process({
+      method: "get",
+      path: "/",
+    });
+    expect(handler).toHaveBeenCalledOnce();
   });
 
   it("should use subrouter", async () => {
@@ -158,52 +173,50 @@ describe("WrakerRouter", () => {
     const innerHandler = vitest.fn();
     inner.get("/path", innerHandler);
 
-    let request = {
+    await router.process({
       method: "get",
       path: "/path",
-    } as AppRequest;
-    router.process(request);
+    });
 
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(0);
 
-    request = {
+    await router.process({
       method: "get",
       path: "/inner/path",
-    } as AppRequest;
-    router.process(request);
+    });
 
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(1);
 
-    request = {
+    await router.process({
       method: "get",
       path: "/inner/none",
-    } as AppRequest;
-    router.process(request);
+    });
 
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(1);
   });
 
   it("should handle next handlers", async () => {
-    // const router = new WrakerRouter();
-    // const handler = vitest.fn();
-    // router.use("/", (req, res, next) => {
-    //   expect(req.body).toBeDefined();
-    //   req.body.hasNext = true;
-    //   next();
-    // });
-    // router.use("/", (req) => {
-    //   expect(req.body.hasNext).toBe(true);
-    //   handler();
-    // });
-    // const request = {
-    //   method: "get",
-    //   path: "/",
-    // } as AppRequest;
-    // router.process(request);
-    // expect(handler).toHaveBeenCalledOnce();
+    const router = new WrakerRouter();
+    const handler = vitest.fn();
+
+    router.use("/", (req, _res, next) => {
+      req.body.hasNext = true;
+      next();
+    });
+    router.get("/", (req, res) => {
+      handler(req.body.hasNext);
+      res.end();
+    });
+
+    await router.process({
+      method: "get",
+      path: "/",
+    });
+
+    expect(handler).toHaveBeenNthCalledWith(1, true);
   });
 
   it("should handle websockets", async () => {});
