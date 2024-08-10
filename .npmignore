@@ -9,3 +9,4 @@ tsconfig.json
 docs
 .github
 types/vitest.d.ts
+.coverage
