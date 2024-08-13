@@ -1,4 +1,3 @@
-import { type Routable } from "./Handler";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 import type { EventOptions } from "../common";
 
@@ -10,7 +9,7 @@ export interface WrakerAppOptions extends WrakerRouterOptions {
   locals?: WrakerAppLocals;
 }
 
-export class WrakerApp extends WrakerRouter implements Routable {
+export class WrakerApp extends WrakerRouter {
   public locals: WrakerAppLocals = {};
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();

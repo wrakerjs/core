@@ -77,7 +77,7 @@ describe("WrakerApp", () => {
     const handler = vitest.fn();
     app.get("/path", handler);
 
-    await app.process({
+    await app["_process"]({
       method: "get",
       path: "/path",
     });

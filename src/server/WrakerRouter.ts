@@ -1,7 +1,6 @@
 import {
   WrakerAppRequest,
   EventHandler,
-  Routable,
   StructuredEventHandler as Layer,
   WrakerAppPath,
   type WrakerAppRequestOptions,
@@ -12,7 +11,7 @@ export type WrakerRouterOptions = {
   path: WrakerAppPath;
 };
 
-export class WrakerRouter extends EventTarget implements Routable {
+export class WrakerRouter extends EventTarget {
   private _stack: Array<Layer> = new Array();
   private _path: WrakerAppPath;
 
@@ -204,7 +203,7 @@ export class WrakerRouter extends EventTarget implements Routable {
     });
   }
 
-  public async process(_request: WrakerAppRequestOptions) {
+  protected async _process(_request: WrakerAppRequestOptions) {
     const { method, path } = _request;
     if (!method || !path) {
       this._sendError({
@@ -239,7 +238,7 @@ export class WrakerRouter extends EventTarget implements Routable {
       if (finished) break;
 
       if (layer.handler instanceof WrakerRouter) {
-        await layer.handler.process({
+        await layer.handler._process({
           ..._request,
           path: path.slice(layer.path.length) ?? "/",
         });
