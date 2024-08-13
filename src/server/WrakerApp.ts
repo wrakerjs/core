@@ -33,7 +33,7 @@ export class WrakerApp extends WrakerRouter {
         const data = event.data;
         if (!data) return;
 
-        this.process(data);
+        this._process(data);
       }
     );
   }
