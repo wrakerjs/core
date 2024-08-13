@@ -15,8 +15,9 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "dev": "vitest --watch",
-    "test": "vitest --no-watch",
+    "dev": "vitest --watch --no-coverage",
+    "test": "vitest --no-watch --no-coverage",
+    "coverage": "vitest --no-watch --coverage",
     "publish": "npm run build && npm publish",
     "docs": "typedoc --out ./docs ./src/index.ts"
   },
