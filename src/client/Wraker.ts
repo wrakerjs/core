@@ -11,6 +11,13 @@ export type WrakerFetchOptions = {
 export type WrakerRequestId = string;
 export type WrakerRequest = {};
 
+export class TimeoutException extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TimeoutException";
+  }
+}
+
 export class Wraker {
   private _worker: Worker = null as unknown as Worker;
   private _requests: Map<
@@ -61,7 +68,8 @@ export class Wraker {
 
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        reject(new Error("Request timed out"));
+        this._requests.delete(xRequestId);
+        reject(new TimeoutException("Request timed out"));
       }, timeout);
 
       const method = options?.method || "GET";
