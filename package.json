@@ -21,7 +21,7 @@
     "bump:patch": "npm version patch && git push && git push --tags",
     "bump:minor": "npm version minor && git push && git push --tags",
     "bump:major": "npm version major && git push && git push --tags",
-    "publish": "npm run build && npm publish",
+    "release:npm": "npm run build && npm publish",
     "docs": "typedoc --out ./docs ./src/index.ts"
   },
   "type": "module",
