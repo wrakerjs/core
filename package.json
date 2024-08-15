@@ -1,6 +1,6 @@
 {
   "name": "wraker",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "main": "./dist/wraker.js",
   "module": "./dist/wraker.mjs",
   "types": "./dist/wraker.d.ts",
@@ -18,7 +18,10 @@
     "dev": "vitest --watch --no-coverage",
     "test": "vitest --no-watch --no-coverage",
     "coverage": "vitest --no-watch --coverage",
-    "publish": "npm run build && npm publish",
+    "bump:patch": "npm version patch && git push && git push --tags",
+    "bump:minor": "npm version minor && git push && git push --tags",
+    "bump:major": "npm version major && git push && git push --tags",
+    "release:npm": "npm run build && npm publish",
     "docs": "typedoc --out ./docs ./src/index.ts"
   },
   "type": "module",

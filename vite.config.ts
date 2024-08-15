@@ -3,8 +3,8 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    include: ["src/**/*.spec.ts", "tests/**/*.spec.ts"],
-    exclude: ["node_modules", "dist"],
+    include: ["src/tests/**/*.spec.ts"],
+    exclude: ["src/!tests/*.ts", "node_modules", "dist"],
     silent: false,
     testTimeout: 1000,
 
@@ -13,7 +13,8 @@ export default defineConfig({
       enabled: true,
       provider: "istanbul",
       reportsDirectory: "./.coverage",
-      include: ["src/client", "src/server"],
+      include: ["src/**/*.ts"],
+      exclude: ["src/tests/**/*.ts"],
     },
 
     browser: {
@@ -26,13 +27,7 @@ export default defineConfig({
     },
   },
 
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-
   worker: {
-    format: "es",
+    format: "iife",
   },
 });

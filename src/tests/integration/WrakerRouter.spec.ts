@@ -1,5 +1,5 @@
 import { it, describe, expect, vitest } from "vitest";
-import { WrakerRouter } from ".";
+import { WrakerRouter } from "../..";
 
 describe("WrakerRouter", () => {
   it("should be well defined", async () => {
