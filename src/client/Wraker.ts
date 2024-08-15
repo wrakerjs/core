@@ -66,6 +66,8 @@ export class Wraker {
 
       const method = options?.method || "GET";
 
+      this._requests.set(xRequestId, { resolve, reject });
+
       this._worker.postMessage({
         headers: {
           "X-Request-ID": xRequestId,
@@ -75,8 +77,6 @@ export class Wraker {
         body: options?.body || {},
         method,
       });
-
-      this._requests.set(xRequestId, { resolve, reject });
     });
   }
 }
