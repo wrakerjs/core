@@ -236,7 +236,3 @@ export type EventHandlerFn = (
 // ) => void;
 
 export type WrakerAppPath = string;
-
-export interface Routable {
-  process(request: WrakerAppRequest): void;
-}

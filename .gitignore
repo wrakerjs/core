@@ -95,6 +95,7 @@ dist
 build
 bin
 docs
+.coverage
 
 # Gatsby files
 .cache/

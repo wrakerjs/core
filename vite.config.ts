@@ -9,6 +9,12 @@ export default defineConfig({
     testTimeout: 1000,
 
     reporters: ["verbose"],
+    coverage: {
+      enabled: true,
+      provider: "istanbul",
+      reportsDirectory: "./.coverage",
+      include: ["src/client", "src/server"],
+    },
 
     browser: {
       name: "chromium",

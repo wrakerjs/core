@@ -80,12 +80,12 @@ describe("WrakerRouter", () => {
     const handler = vitest.fn();
     router.get("/path", handler);
 
-    router.process({
+    router["_process"]({
       method: "get",
       path: "/path",
     });
 
-    router.process({
+    router["_process"]({
       method: "GET",
       path: "/path",
     });
@@ -113,7 +113,7 @@ describe("WrakerRouter", () => {
       .post("/path", handler)
       .all("/path", handler);
 
-    await router.process({
+    await router["_process"]({
       method: "get",
       path: "/path",
     });
@@ -134,7 +134,7 @@ describe("WrakerRouter", () => {
     });
     router.use("/", handler).use(handler).use(handler, handler);
 
-    await router.process({
+    await router["_process"]({
       method: "get",
       path: "/",
     });
@@ -156,7 +156,7 @@ describe("WrakerRouter", () => {
 
     router.use("/", handler).use(handlerNoNext).use(handler, handler);
 
-    await router.process({
+    await router["_process"]({
       method: "get",
       path: "/",
     });
@@ -173,7 +173,7 @@ describe("WrakerRouter", () => {
     const innerHandler = vitest.fn();
     inner.get("/path", innerHandler);
 
-    await router.process({
+    await router["_process"]({
       method: "get",
       path: "/path",
     });
@@ -181,7 +181,7 @@ describe("WrakerRouter", () => {
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(0);
 
-    await router.process({
+    await router["_process"]({
       method: "get",
       path: "/inner/path",
     });
@@ -189,7 +189,7 @@ describe("WrakerRouter", () => {
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(1);
 
-    await router.process({
+    await router["_process"]({
       method: "get",
       path: "/inner/none",
     });
@@ -211,7 +211,7 @@ describe("WrakerRouter", () => {
       res.end();
     });
 
-    await router.process({
+    await router["_process"]({
       method: "get",
       path: "/",
     });
