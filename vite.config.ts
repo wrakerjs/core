@@ -28,6 +28,6 @@ export default defineConfig({
   },
 
   worker: {
-    format: "iife",
+    format: "es",
   },
 });
