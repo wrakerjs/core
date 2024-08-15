@@ -1,9 +1,9 @@
 import { it, describe, expect, vi, afterEach, beforeEach, chai } from "vitest";
 const { AssertionError } = chai;
 
-import { TimeoutException, Wraker } from ".";
-import fixtureWorkerUrl from "../tests/fixtures/basic?url";
-import FixtureWorker from "../tests/fixtures/basic?worker";
+import { TimeoutException, Wraker } from "../..";
+import fixtureWorkerUrl from "../fixtures/basic?url";
+import FixtureWorker from "../fixtures/basic?worker";
 class WorkerMock extends EventTarget {
   public static testing: string;
 

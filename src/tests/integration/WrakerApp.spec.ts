@@ -1,10 +1,10 @@
 import { it, describe, expect, vitest } from "vitest";
-import "../tests/utils";
+import "../utils";
 
-import { WrakerRouter, WrakerApp, WrakerAppResponse } from ".";
-import { EventOptions } from "../common";
+import { WrakerRouter, WrakerApp, WrakerAppResponse } from "../..";
+import { EventOptions } from "../../common";
 
-import workerUrl from "../tests/fixtures/basic?url";
+import workerUrl from "../fixtures/basic?url";
 
 describe("WrakerApp", () => {
   it("should be defined", async () => {
