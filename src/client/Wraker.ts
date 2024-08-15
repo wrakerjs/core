@@ -28,6 +28,17 @@ export class Wraker {
     }
   > = new Map();
 
+  /**
+   * Create a new Wraker instance
+   * @param scriptURL URL of the worker script
+   * @param options Worker options
+   * @returns Wraker instance
+   *
+   * @example
+   * const instance = new Wraker(new URL("worker.js", import.meta.url), {
+   *  type: "module",
+   * });
+   */
   constructor(scriptURL?: string | URL, options?: WorkerOptions) {
     if (!scriptURL) return;
 
@@ -35,7 +46,7 @@ export class Wraker {
     this._init();
   }
 
-  protected _init(): void {
+  private _init(): void {
     this._worker.addEventListener("message", (event: MessageEvent<any>) => {
       const data = event.data;
       const { headers } = event.data;
@@ -54,6 +65,15 @@ export class Wraker {
     });
   }
 
+  /**
+   * Initialize a Wraker instance from an existing Worker
+   * @param worker Worker instance
+   * @returns Wraker instance
+   *
+   * @example
+   * const worker = new Worker("worker.js");
+   * const instance = Wraker.fromWorker(worker);
+   */
   public static fromWorker(worker: Worker) {
     const wraker = new Wraker();
 
@@ -62,7 +82,20 @@ export class Wraker {
     return wraker;
   }
 
-  public async fetch(path: string, options?: WrakerFetchOptions): Promise<any> {
+  /**
+   * Fetch data from the worker
+   * @param path Path to fetch
+   * @param options Fetch options
+   * @returns Promise
+   *
+   * @example
+   * const data = await instance.fetch("/hello");
+   * console.log(data.body); // Hello, world!
+   */
+  public async fetch<Result = any>(
+    path: string,
+    options?: WrakerFetchOptions
+  ): Promise<Result> {
     const xRequestId = uuid();
     const timeout = options?.timeout || 30 * 1000;
 
