@@ -15,17 +15,128 @@
 Wraker is a wrapper for [web workers](https://developer.mozilla.org/docs/Web/API/Worker/Worker).
 It makes it easier to manage the communication between the main thread and the worker thread through a simple `express` like API.
 
-## Installation
+## Documentation
 
-```bash
-npm install wraker@latest
+- [API Reference](https://josselinonduty.github.io/wraker/)
+- [MDN Web Workers](https://developer.mozilla.org/docs/Web/API/Worker/Worker)
+
+## Getting started
+
+### Using a CDN or a static server
+
+Create a new file `worker.js`:
+
+```js
+import { WrakerApp } from "https://cdn.jsdelivr.net/npm/wraker/+esm";
+
+const app = new WrakerApp();
+
+app.get("/ping", (req, res) => {
+  res.send("pong");
+});
+
+app.listen();
 ```
 
-## Usage
+Then, create a new file `main.js`:
 
-⚠ This version is working in progress!
+```js
+import { Wraker } from "https://cdn.jsdelivr.net/npm/wraker/+esm";
 
-Majors changes will happen in the next versions, so please be careful when using the lib.
+const worker = new Wraker("worker.js", {
+  type: "module",
+  name: "my-first-worker",
+});
+
+worker.fetch("/ping").then((response) => {
+  console.log(response.body); // "pong"
+});
+```
+
+Finally, create a web page `index.html` and serve it:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wraker</title>
+  </head>
+
+  <body>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
+```
+
+> ℹ️ You must serve your files using a server because of the CORS policy. If you open the `index.html` file directly in your browser, you will get an error as the worker will not be able to fetch the `index.js` and `worker.js` files.
+>
+> You can use any server to serve your files. You can use [express](https://www.npmjs.com/package/express). Other good options are [http-server](https://www.npmjs.com/package/http-server), python's [http.server](https://docs.python.org/3/library/http.server.html), or [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) for VSCode.
+
+## Using a Node.js bundler
+
+```bash
+npm install wraker
+```
+
+### Vite (Nuxt, Vue, Svelte, etc.)
+
+Vite automatically resolves `"./worker.js?worker"` to a worker class and `"./worker.js?url"` to a worker url. Please refer to the [Vite documentation](https://v3.vitejs.dev/guide/features.html#import-with-query-suffixes) for more information.
+
+You can take advantage of this feature to create a worker with Wraker:
+
+```js
+// worker.js
+import { WrakerApp } from "wraker";
+```
+
+```js
+// main.js using ?worker shorthand
+import { Wraker } from "wraker";
+import myWorker from "./worker.js?worker";
+
+const worker = new myWorker();
+const wraker = new Wraker.fromWorker(worker);
+```
+
+```js
+// main.js using ?url shorthand
+import { Wraker } from "wraker";
+import myWorkerUrl from "./worker.js?url";
+
+const worker = new Wraker(myWorkerUrl, {
+  type: "module",
+});
+```
+
+```js
+// main.js using the full path
+import { Wraker } from "wraker";
+
+const myWorkerUrl = new URL("./worker.js", import.meta.url);
+
+const worker = new Wraker(myWorkerUrl, {
+  type: "module",
+});
+```
+
+### Webpack (React, Angular, etc.)
+
+The correct way to use Wraker with Webpack is to use the full path to the worker file. Please refer to the [Webpack documentation](https://webpack.js.org/guides/web-workers/) for more information.
+
+```js
+// main.js
+import { Wraker } from "wraker";
+
+const myWorkerUrl = new URL("./worker.js", import.meta.url);
+
+const worker = new Wraker(myWorkerUrl, {
+  type: "module",
+});
+```
+
+> ℹ️ You may be able to use the `?worker` or `?url` shorthands, but it is using workarounds and may not work as expected. Refer to [this discussion](https://github.com/vitejs/vite/issues/13680) for details.
 
 ## License
 
