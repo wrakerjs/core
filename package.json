@@ -4,6 +4,9 @@
   "main": "./dist/wraker.js",
   "module": "./dist/wraker.mjs",
   "types": "./dist/wraker.d.ts",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "exports": {
     ".": {
       "types": "./dist/wraker.d.ts",
