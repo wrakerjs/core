@@ -41,6 +41,8 @@ jobs:
           HOME: /root
 
       - run: npm run coverage
+        env:
+          HOME: /root
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4
