@@ -1,13 +1,13 @@
 name: Deploy documentation to Github Pages
 on:
-  pull_request:
+  push:
     branches: [main]
-    types: [closed]
+    tags: ["v*"]
   workflow_dispatch:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
 
     permissions:
       id-token: write
