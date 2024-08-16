@@ -1,6 +1,6 @@
 {
   "name": "wraker",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "main": "./dist/wraker.js",
   "module": "./dist/wraker.mjs",
   "types": "./dist/wraker.d.ts",
