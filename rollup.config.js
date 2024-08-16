@@ -19,7 +19,10 @@ const bundle = (config) => ({
 export default [
   bundle({
     plugins: [
-      esbuild(),
+      esbuild({
+        minify: true,
+        treeShaking: true,
+      }),
       resolve({
         browser: true,
       }),
@@ -30,13 +33,17 @@ export default [
         file: `${name}.js`,
         format: "cjs",
         sourcemap: true,
+        compact: true,
       },
       {
         file: `${name}.mjs`,
         format: "es",
         sourcemap: true,
+        compact: true,
       },
     ],
+    treeshake: "recommended",
+    
   }),
   bundle({
     plugins: [dts()],
