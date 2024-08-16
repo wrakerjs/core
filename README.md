@@ -77,13 +77,13 @@ Finally, create a web page `index.html` and serve it:
 >
 > You can use any server to serve your files. You can use [express](https://www.npmjs.com/package/express). Other good options are [http-server](https://www.npmjs.com/package/http-server), python's [http.server](https://docs.python.org/3/library/http.server.html), or [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) for VSCode.
 
-## Using a Node.js bundler
+### Using a Node.js bundler
 
 ```bash
 npm install wraker
 ```
 
-### Vite (Nuxt, Vue, Svelte, etc.)
+#### Vite (Nuxt, Vue, Svelte, etc.)
 
 Vite automatically resolves `"./worker.js?worker"` to a worker class and `"./worker.js?url"` to a worker url. Please refer to the [Vite documentation](https://v3.vitejs.dev/guide/features.html#import-with-query-suffixes) for more information.
 
@@ -124,7 +124,7 @@ const worker = new Wraker(myWorkerUrl, {
 });
 ```
 
-### Webpack (React, Angular, etc.)
+#### Webpack (React, Angular, etc.)
 
 The correct way to use Wraker with Webpack is to use the full path to the worker file. Please refer to the [Webpack documentation](https://webpack.js.org/guides/web-workers/) for more information.
 
