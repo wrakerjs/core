@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [$default-branch]
+    tags: ["v*"]
 
 jobs:
   release:
