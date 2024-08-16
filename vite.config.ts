@@ -12,7 +12,7 @@ export default defineConfig({
     coverage: {
       enabled: true,
       provider: "istanbul",
-      reportsDirectory: "./.coverage",
+      reportsDirectory: "coverage",
       include: ["src/**/*.ts"],
       exclude: ["src/tests/**/*.ts"],
     },

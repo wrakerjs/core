@@ -96,6 +96,7 @@ build
 bin
 docs
 .coverage
+coverage
 
 # Gatsby files
 .cache/
