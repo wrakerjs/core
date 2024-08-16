@@ -141,6 +141,10 @@ const worker = new Wraker(myWorkerUrl, {
 
 > ℹ️ You may be able to use the `?worker` or `?url` shorthands, but it is using workarounds and may not work as expected. Refer to [this discussion](https://github.com/vitejs/vite/issues/13680) for details.
 
+## Contributing
+
+Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
+
 ## License
 
 Wraker is licensed under the MIT License. See [LICENSE](LICENSE) for the full license text.
