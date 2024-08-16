@@ -1,5 +1,5 @@
 import type { Method } from "../common";
-const uuid = crypto.randomUUID.bind(crypto);
+import { v4 as uuid } from "uuid";
 
 export type WrakerFetchOptions = {
   method?: Method;
