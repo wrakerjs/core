@@ -33,13 +33,16 @@ jobs:
 
       - run: npm ci
         if: steps.modules-cache.outputs.cache-hit != 'true'
+
       - run: npm run build
+
       - run: npm run test
         env:
           HOME: /root
 
+      - run: npm run coverage
+
       - name: Upload results to Codecov
-        if: matrix.node-version == '22.x'
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
