@@ -1,4 +1,5 @@
 import {
+  WrakerHeaders,
   type EventData,
   type WrakerRequest,
   type WrakerResponse,
@@ -78,10 +79,10 @@ export class Wraker {
   private _init(): void {
     this._worker.addEventListener("message", (event) => {
       const data = event.data;
-      const { headers } = event.data;
+      const headers = new WrakerHeaders(event.data.headers);
       if (!headers) return;
 
-      const xRequestId = headers["X-Request-ID"];
+      const xRequestId = headers.get("X-Request-ID");
       const request = this._requests.get(xRequestId);
       if (!request) return;
 
@@ -138,12 +139,12 @@ export class Wraker {
       }, timeout);
 
       const method = options?.method || "GET";
+      const headers = new WrakerHeaders(options?.headers);
+
+      headers.set("X-Request-ID", xRequestId);
 
       this._worker.postMessage({
-        headers: {
-          ...options?.headers,
-          "X-Request-ID": xRequestId,
-        },
+        headers: headers.serialize(),
         path,
         method,
         body: options?.body,

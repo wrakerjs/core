@@ -217,7 +217,7 @@ export class WrakerRouter extends EventTarget {
         if (request.res.statusCode === 0) request.res.statusCode = 500;
 
         this._sendError({
-          headers: request.res.headers,
+          headers: request.res.headers.serialize(),
           error: error,
           status: request.res.statusCode,
         });

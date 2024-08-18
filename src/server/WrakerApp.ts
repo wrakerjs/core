@@ -1,4 +1,4 @@
-import type { WrakerRequest } from "../common";
+import { WrakerHeaders, type WrakerRequest } from "../common";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
 export interface WrakerAppLocals {
@@ -33,22 +33,21 @@ export class WrakerApp extends WrakerRouter {
         const data = event.data;
         if (!data) return;
 
+        const headers = data.headers;
+
         if (!data.method || !data.path) {
           this._sendError({
-            headers: data.headers || {},
+            headers: headers || {},
             error: "Baq Request",
             status: 400,
           });
           return;
         }
 
-        if (data.headers === undefined || data.headers === null)
-          data.headers = {};
-
         this._process({
           method: data.method,
           path: data.path,
-          headers: data.headers,
+          headers: headers || {},
           body: data.body,
         });
       }
