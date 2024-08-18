@@ -8,6 +8,6 @@ tsconfig.json
 *.tgz
 docs
 .github
-types/vitest.d.ts
+src/tests
 .coverage
 coverage

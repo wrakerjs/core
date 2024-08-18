@@ -1,8 +1,7 @@
 import { it, describe, expect, vitest } from "vitest";
 import "../utils";
 
-import { WrakerRouter, WrakerApp, WrakerAppResponse } from "../..";
-import { EventOptions } from "../../common";
+import { WrakerRouter, WrakerApp, type WrakerResponse } from "../..";
 
 import workerUrl from "../fixtures/basic?url";
 
@@ -80,6 +79,8 @@ describe("WrakerApp", () => {
     await app["_process"]({
       method: "get",
       path: "/path",
+      headers: {},
+      body: undefined,
     });
     expect(handler).toHaveBeenCalledTimes(1);
   });
@@ -90,7 +91,7 @@ describe("WrakerApp", () => {
 
     app.get("/something", handler);
 
-    const event = new MessageEvent<EventOptions>("message", {
+    const event = new MessageEvent("message", {
       data: {
         method: "get",
         path: "/something",
@@ -112,8 +113,8 @@ describe("WrakerApp", () => {
   it("should interact with client", async () => {
     const worker = new Worker(workerUrl, { type: "module" });
 
-    const promise = new Promise<WrakerAppResponse>((resolve) => {
-      worker.onmessage = (event: MessageEvent<WrakerAppResponse>) => {
+    const promise = new Promise<WrakerResponse>((resolve) => {
+      worker.onmessage = (event: MessageEvent<WrakerResponse>) => {
         resolve(event.data);
       };
     });
@@ -130,6 +131,6 @@ describe("WrakerApp", () => {
     expect(response.body).toEqual({
       status: 200,
     });
-    expect(response.headers["X-Request-ID"]).toBe("123");
+    expect(response.headers["X-Request-ID".toLowerCase()]).toBe("123");
   });
 });

@@ -1,15 +1,19 @@
-import type { Method } from "../common";
+import {
+  WrakerHeaders,
+  type EventData,
+  type WrakerRequest,
+  type WrakerResponse,
+} from "../common";
 import { v4 as uuid } from "uuid";
 
-export type WrakerFetchOptions = {
-  method?: Method;
-  headers?: Record<string, string>;
-  body?: any;
+export type WrakerFetchOptions = Omit<Partial<WrakerRequest>, "path"> & {
+  /**
+   * Request timeout in milliseconds
+   */
   timeout?: number;
 };
 
-export type WrakerRequestId = string;
-export type WrakerRequest = {};
+export type WrakerRequestId = ReturnType<typeof uuid>;
 
 export class TimeoutException extends Error {
   constructor(message: string) {
@@ -18,8 +22,34 @@ export class TimeoutException extends Error {
   }
 }
 
+interface TypedWorker<Post, Receive> extends Worker {
+  postMessage(message: Post, options?: Transferable[]): void;
+  postMessage(message: Post, options?: StructuredSerializeOptions): void;
+  postMessage(message: Post, options?: any): void;
+
+  addEventListener<K extends keyof WorkerEventMap>(
+    type: K,
+    listener: (this: Worker, ev: WorkerEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(
+    type: "message",
+    listener: (this: Worker, ev: MessageEvent<Partial<Receive>>) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(type: unknown, listener: unknown, options?: unknown): void;
+}
+
 export class Wraker {
-  private _worker: Worker = null as unknown as Worker;
+  private _worker = null as unknown as TypedWorker<
+    WrakerRequest,
+    WrakerResponse
+  >;
   private _requests: Map<
     WrakerRequestId,
     {
@@ -47,11 +77,12 @@ export class Wraker {
   }
 
   private _init(): void {
-    this._worker.addEventListener("message", (event: MessageEvent<any>) => {
+    this._worker.addEventListener("message", (event) => {
       const data = event.data;
-      const { headers } = event.data;
+      const headers = new WrakerHeaders(event.data.headers);
+      if (!headers) return;
 
-      const xRequestId = headers["X-Request-ID"];
+      const xRequestId = headers.get("X-Request-ID");
       const request = this._requests.get(xRequestId);
       if (!request) return;
 
@@ -92,31 +123,31 @@ export class Wraker {
    * const data = await instance.fetch("/hello");
    * console.log(data.body); // Hello, world!
    */
-  public async fetch<Result = any>(
+  public async fetch<Result = EventData>(
     path: string,
     options?: WrakerFetchOptions
-  ): Promise<Result> {
+  ): Promise<WrakerResponse<Result>> {
     const xRequestId = uuid();
     const timeout = options?.timeout || 30 * 1000;
 
     return new Promise((resolve, reject) => {
+      this._requests.set(xRequestId, { resolve, reject });
+
       setTimeout(() => {
         this._requests.delete(xRequestId);
-        reject(new TimeoutException("Request timed out"));
+        reject(new TimeoutException(`Request timed out after ${timeout}ms`));
       }, timeout);
 
       const method = options?.method || "GET";
+      const headers = new WrakerHeaders(options?.headers);
 
-      this._requests.set(xRequestId, { resolve, reject });
+      headers.set("X-Request-ID", xRequestId);
 
       this._worker.postMessage({
-        headers: {
-          "X-Request-ID": xRequestId,
-          ...options?.headers,
-        },
+        headers: headers.serialize(),
         path,
-        body: options?.body || {},
         method,
+        body: options?.body,
       });
     });
   }

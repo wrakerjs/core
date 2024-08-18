@@ -4,12 +4,12 @@ const app = new WrakerApp();
 const items = new Map<string | number, any>();
 
 app.use("/items", (req, res, next) => {
-  if (!req.headers["Authorization"]) {
+  if (!req.headers.get("Authorization")) {
     res.status(401);
     throw new Error("Unauthorized.");
   }
 
-  const token = req.headers["Authorization"];
+  const token = req.headers.get("Authorization");
   if (token !== "Bearer SUPER_SECRET_TOKEN") {
     res.status(403);
     throw new Error("Forbidden.");
@@ -23,7 +23,7 @@ app.get("/items", (_, res) => {
 });
 
 app.post("/items", (req, res) => {
-  if (!req.body.item) {
+  if (!req.body?.item) {
     res.status(400);
     throw new Error("Item data is missing.");
   }

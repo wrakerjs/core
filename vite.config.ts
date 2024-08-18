@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     include: ["src/tests/**/*.spec.ts"],
-    exclude: ["src/!tests/*.ts", "node_modules", "dist"],
+    exclude: ["src/(?!tests)", "node_modules", "dist"],
     silent: false,
     testTimeout: 1000,
 
@@ -13,8 +13,8 @@ export default defineConfig({
       enabled: true,
       provider: "istanbul",
       reportsDirectory: "coverage",
-      include: ["src/**/*.ts"],
-      exclude: ["src/tests/**/*.ts"],
+      include: ["src/"],
+      exclude: ["src/tests/"],
     },
 
     browser: {

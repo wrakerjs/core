@@ -75,7 +75,8 @@ describe.each(["url", "constructor"])("[Advanced] Wraker", (type) => {
       });
       expect.fail("Fetch should fail.");
     } catch (data: any) {
-      expect(data.error).toBe("Item data is missing.");
+      expect(data.error).toBeInstanceOf(Error);
+      expect(data.error.message).toBe("Item data is missing.");
       expect(data.status).toBe(400);
     }
   });
@@ -90,7 +91,8 @@ describe.each(["url", "constructor"])("[Advanced] Wraker", (type) => {
       });
       expect.fail("Fetch should fail.");
     } catch (data: any) {
-      expect(data.error).toBe("Unauthorized.");
+      expect(data.error).toBeInstanceOf(Error);
+      expect(data.error.message).toBe("Unauthorized.");
       expect(data.status).toBe(401);
     }
   });
@@ -108,7 +110,8 @@ describe.each(["url", "constructor"])("[Advanced] Wraker", (type) => {
       });
       expect.fail("Fetch should fail.");
     } catch (data: any) {
-      expect(data.error).toBe("Forbidden.");
+      expect(data.error).toBeInstanceOf(Error);
+      expect(data.error.message).toBe("Forbidden.");
       expect(data.status).toBe(403);
     }
   });

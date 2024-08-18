@@ -1,5 +1,6 @@
 import { it, describe, expect, vitest } from "vitest";
-import { WrakerRouter } from "../..";
+import { WrakerRouter, type WrakerAppRequest } from "../..";
+import { __dproc } from "../utils";
 
 describe("WrakerRouter", () => {
   it("should be well defined", async () => {
@@ -80,15 +81,19 @@ describe("WrakerRouter", () => {
     const handler = vitest.fn();
     router.get("/path", handler);
 
-    router["_process"]({
-      method: "get",
-      path: "/path",
-    });
+    router["_process"](
+      __dproc({
+        method: "get",
+        path: "/path",
+      })
+    );
 
-    router["_process"]({
-      method: "GET",
-      path: "/path",
-    });
+    router["_process"](
+      __dproc({
+        method: "GET",
+        path: "/path",
+      })
+    );
 
     expect(handler).toHaveBeenNthCalledWith(
       2,
@@ -113,10 +118,12 @@ describe("WrakerRouter", () => {
       .post("/path", handler)
       .all("/path", handler);
 
-    await router["_process"]({
-      method: "get",
-      path: "/path",
-    });
+    await router["_process"](
+      __dproc({
+        method: "get",
+        path: "/path",
+      })
+    );
 
     expect(handler).toHaveBeenNthCalledWith(
       4,
@@ -134,10 +141,12 @@ describe("WrakerRouter", () => {
     });
     router.use("/", handler).use(handler).use(handler, handler);
 
-    await router["_process"]({
-      method: "get",
-      path: "/",
-    });
+    await router["_process"](
+      __dproc({
+        method: "get",
+        path: "/",
+      })
+    );
     expect(handler).toHaveBeenNthCalledWith(
       4,
       expect.anything(),
@@ -156,10 +165,12 @@ describe("WrakerRouter", () => {
 
     router.use("/", handler).use(handlerNoNext).use(handler, handler);
 
-    await router["_process"]({
-      method: "get",
-      path: "/",
-    });
+    await router["_process"](
+      __dproc({
+        method: "get",
+        path: "/",
+      })
+    );
     expect(handler).toHaveBeenCalledOnce();
   });
 
@@ -173,26 +184,32 @@ describe("WrakerRouter", () => {
     const innerHandler = vitest.fn();
     inner.get("/path", innerHandler);
 
-    await router["_process"]({
-      method: "get",
-      path: "/path",
-    });
+    await router["_process"](
+      __dproc({
+        method: "get",
+        path: "/path",
+      })
+    );
 
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(0);
 
-    await router["_process"]({
-      method: "get",
-      path: "/inner/path",
-    });
+    await router["_process"](
+      __dproc({
+        method: "get",
+        path: "/inner/path",
+      })
+    );
 
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(1);
 
-    await router["_process"]({
-      method: "get",
-      path: "/inner/none",
-    });
+    await router["_process"](
+      __dproc({
+        method: "get",
+        path: "/inner/none",
+      })
+    );
 
     expect(outerHandler).toHaveBeenCalledTimes(1);
     expect(innerHandler).toHaveBeenCalledTimes(1);
@@ -203,7 +220,10 @@ describe("WrakerRouter", () => {
     const handler = vitest.fn();
 
     router.use("/", (req, _res, next) => {
-      req.body.hasNext = true;
+      req.body = {
+        hasNext: true,
+      };
+
       next();
     });
     router.get("/", (req, res) => {
@@ -211,10 +231,12 @@ describe("WrakerRouter", () => {
       res.end();
     });
 
-    await router["_process"]({
-      method: "get",
-      path: "/",
-    });
+    await router["_process"](
+      __dproc({
+        method: "get",
+        path: "/",
+      })
+    );
 
     expect(handler).toHaveBeenNthCalledWith(1, true);
   });
