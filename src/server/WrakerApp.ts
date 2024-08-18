@@ -1,5 +1,5 @@
+import type { WrakerRequest } from "../common";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
-import type { EventOptions } from "../common";
 
 export interface WrakerAppLocals {
   [key: string]: any;
@@ -29,11 +29,28 @@ export class WrakerApp extends WrakerRouter {
 
     globalThis.addEventListener(
       "message",
-      (event: MessageEvent<EventOptions>) => {
+      (event: MessageEvent<Partial<WrakerRequest>>) => {
         const data = event.data;
         if (!data) return;
 
-        this._process(data);
+        if (!data.method || !data.path) {
+          this._sendError({
+            headers: data.headers || {},
+            error: "Baq Request",
+            status: 400,
+          });
+          return;
+        }
+
+        if (data.headers === undefined || data.headers === null)
+          data.headers = {};
+
+        this._process({
+          method: data.method,
+          path: data.path,
+          headers: data.headers,
+          body: data.body,
+        });
       }
     );
   }

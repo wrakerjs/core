@@ -4,7 +4,7 @@ const { AssertionError } = chai;
 import { TimeoutException, Wraker } from "../..";
 import fixtureWorkerUrl from "../fixtures/basic?url";
 import FixtureWorker from "../fixtures/basic?worker";
-class WorkerMock extends EventTarget {
+class WorkerMock extends Worker {
   public static testing: string;
 
   postMessage(message: MessageEvent) {
@@ -74,7 +74,7 @@ describe("Wraker", () => {
     expect(postSpy).toHaveBeenNthCalledWith(1, {
       method: "GET",
       path: "/hello",
-      body: {},
+      body: undefined,
       headers: expect.anything(),
     });
   });
