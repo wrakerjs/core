@@ -35,16 +35,23 @@ export type EventPath = string;
  */
 export type EventData = any;
 
+/**
+ * A request headers
+ *
+ * @link [allowed types](https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types)
+ */
+export type EventHeaders = Record<string, string>;
+
 export interface WrakerRequest<T = EventData> {
   path: EventPath;
   method: Method;
-  headers: Record<string, string>;
+  headers: EventHeaders;
   body: T;
 }
 
 export interface WrakerBaseResponse {
   status: number;
-  headers: Record<string, string>;
+  headers: EventHeaders;
 }
 
 export type WrakerSuccessResponse<T = EventData> = WrakerBaseResponse & {

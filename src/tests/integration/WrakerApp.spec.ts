@@ -128,10 +128,9 @@ describe("WrakerApp", () => {
     });
 
     const response = await promise;
-    console.log(response);
     expect(response.body).toEqual({
       status: 200,
     });
-    expect(response.headers["X-Request-ID"]).toBe("123");
+    expect(response.headers["X-Request-ID".toLowerCase()]).toBe("123");
   });
 });
