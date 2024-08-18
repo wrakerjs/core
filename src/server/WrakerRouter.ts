@@ -2,18 +2,22 @@ import {
   WrakerAppRequest,
   EventHandler,
   StructuredEventHandler as Layer,
-  WrakerAppPath,
-  type WrakerAppRequestOptions,
 } from "./Handler";
-import { Method } from "../common";
+import {
+  type Method,
+  type EventPath,
+  type WrakerRequest,
+  type WrakerErrorResponse,
+  type WrakerSuccessResponse,
+} from "../common";
 
 export type WrakerRouterOptions = {
-  path: WrakerAppPath;
+  path: EventPath;
 };
 
 export class WrakerRouter extends EventTarget {
   private _stack: Array<Layer> = new Array();
-  private _path: WrakerAppPath;
+  private _path: EventPath;
 
   constructor(options?: Partial<WrakerRouterOptions>) {
     super();
@@ -22,7 +26,7 @@ export class WrakerRouter extends EventTarget {
 
   private _method(
     method: Method,
-    path: WrakerAppPath,
+    path: EventPath,
     ...handlers: EventHandler[]
   ): WrakerRouter {
     handlers.forEach((handler) => {
@@ -41,123 +45,99 @@ export class WrakerRouter extends EventTarget {
     return this;
   }
 
-  public all(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public all(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("all", path, ...handlers);
   }
-  public checkout(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public checkout(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("checkout", path, ...handlers);
   }
-  public copy(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public copy(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("copy", path, ...handlers);
   }
-  public delete(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public delete(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("delete", path, ...handlers);
   }
-  public get(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public get(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("get", path, ...handlers);
   }
-  public head(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public head(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("head", path, ...handlers);
   }
-  public lock(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public lock(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("lock", path, ...handlers);
   }
-  public merge(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public merge(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("merge", path, ...handlers);
   }
   public mkactivity(
-    path: WrakerAppPath,
+    path: EventPath,
     ...handlers: EventHandler[]
   ): WrakerRouter {
     return this._method("mkactivity", path, ...handlers);
   }
-  public mkcol(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public mkcol(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("mkcol", path, ...handlers);
   }
-  public move(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public move(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("move", path, ...handlers);
   }
   public "m-search"(
-    path: WrakerAppPath,
+    path: EventPath,
     ...handlers: EventHandler[]
   ): WrakerRouter {
     return this._method("m-search", path, ...handlers);
   }
-  public notify(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public notify(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("notify", path, ...handlers);
   }
-  public options(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public options(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("options", path, ...handlers);
   }
-  public patch(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public patch(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("patch", path, ...handlers);
   }
-  public post(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public post(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("post", path, ...handlers);
   }
-  public purge(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public purge(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("purge", path, ...handlers);
   }
-  public put(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public put(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("put", path, ...handlers);
   }
-  public report(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public report(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("report", path, ...handlers);
   }
-  public search(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public search(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("search", path, ...handlers);
   }
-  public subscribe(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public subscribe(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("subscribe", path, ...handlers);
   }
-  public trace(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter {
+  public trace(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("trace", path, ...handlers);
   }
-  public unlock(
-    path: WrakerAppPath,
-    ...handlers: EventHandler[]
-  ): WrakerRouter {
+  public unlock(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("unlock", path, ...handlers);
   }
   public unsubscribe(
-    path: WrakerAppPath,
+    path: EventPath,
     ...handlers: EventHandler[]
   ): WrakerRouter {
     return this._method("unsubscribe", path, ...handlers);
   }
 
   //  public  param(name: string, handler: ParamEventHandler): void;
-  public route(path: WrakerAppPath): WrakerRouter {
+  public route(path: EventPath): WrakerRouter {
     this._path = path;
     return this;
   }
 
   public use(...handlers: EventHandler[]): WrakerRouter;
-  public use(path: WrakerAppPath, ...handlers: EventHandler[]): WrakerRouter;
-  public use(arg: WrakerAppPath | EventHandler, ...handlers: EventHandler[]) {
+  public use(path: EventPath, ...handlers: EventHandler[]): WrakerRouter;
+  public use(arg: EventPath | EventHandler, ...handlers: EventHandler[]) {
     if (typeof arg === "string") {
-      handlers?.forEach((handler) => {
+      handlers.forEach((handler) => {
         this.all(arg, handler);
       });
 
@@ -179,43 +159,24 @@ export class WrakerRouter extends EventTarget {
     return this._stack;
   }
 
-  private _send(args: {
-    headers: Record<string, string>;
-    status: number;
-    data: any;
-  }) {
+  protected _send(args: WrakerSuccessResponse) {
     globalThis.postMessage({
       headers: args.headers,
       status: args.status,
-      body: args.data,
+      body: args.body,
     });
   }
 
-  private _sendError(args: {
-    headers: Record<string, string>;
-    status: number;
-    message: any;
-  }) {
+  protected _sendError(args: WrakerErrorResponse) {
     globalThis.postMessage({
       headers: args.headers,
       status: args.status,
-      error: args.message,
+      error: args.error,
     });
   }
 
-  protected async _process(_request: WrakerAppRequestOptions) {
+  protected async _process(_request: WrakerRequest) {
     const { method, path } = _request;
-    if (!method || !path) {
-      this._sendError({
-        headers: _request.headers || {},
-        message: "Baq Request",
-        status: 400,
-      });
-      return;
-    }
-
-    if (path === "/something") {
-    }
 
     const layers = this._stack.filter(
       (handler) =>
@@ -231,7 +192,6 @@ export class WrakerRouter extends EventTarget {
       sendFn: this._send.bind(this),
       sendErrorFn: this._sendError.bind(this),
     });
-    request.res.headers = request.headers || {};
 
     let finished = false;
     for (const layer of layers) {
@@ -258,7 +218,7 @@ export class WrakerRouter extends EventTarget {
 
         this._sendError({
           headers: request.res.headers,
-          message: error instanceof Error ? error.message : error,
+          error: error,
           status: request.res.statusCode,
         });
         return;
@@ -268,7 +228,7 @@ export class WrakerRouter extends EventTarget {
     if (!finished) {
       this._sendError({
         headers: _request.headers || {},
-        message: "Not Found",
+        error: "Not Found",
         status: 404,
       });
     }

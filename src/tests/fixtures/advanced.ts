@@ -23,7 +23,7 @@ app.get("/items", (_, res) => {
 });
 
 app.post("/items", (req, res) => {
-  if (!req.body.item) {
+  if (!req.body?.item) {
     res.status(400);
     throw new Error("Item data is missing.");
   }

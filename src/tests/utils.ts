@@ -1,4 +1,5 @@
 import { expect } from "vitest";
+import type { WrakerRequest } from "../common";
 
 const TIMED_OUT = Symbol("TIMED_OUT");
 const timeoutMs = (ms: number) =>
@@ -25,3 +26,19 @@ expect.extend({
         };
   },
 });
+
+/**
+ * Define default request processing options.
+ *
+ * @param options request options
+ * @internal
+ */
+export function __dproc(
+  options: Omit<Omit<WrakerRequest, "headers">, "body"> & Partial<WrakerRequest>
+): WrakerRequest {
+  return {
+    headers: options.headers || {},
+    body: options.body,
+    ...options,
+  };
+}

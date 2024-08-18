@@ -26,9 +26,34 @@ type LowercaseMethod =
 
 export type Method = LowercaseMethod | Uppercase<LowercaseMethod>;
 
-export interface EventOptions {
+export type EventPath = string;
+
+/**
+ * A request body
+ *
+ * @link [allowed types](https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types)
+ */
+export type EventData = any;
+
+export interface WrakerRequest<T = EventData> {
+  path: EventPath;
   method: Method;
-  path: string;
-  headers?: Record<string, string>;
-  body?: Record<string, any>;
+  headers: Record<string, string>;
+  body: T;
 }
+
+export interface WrakerBaseResponse {
+  status: number;
+  headers: Record<string, string>;
+}
+
+export type WrakerSuccessResponse<T = EventData> = WrakerBaseResponse & {
+  body: T;
+};
+
+export type WrakerErrorResponse<T = Error | EventData> = WrakerBaseResponse & {
+  error: T;
+};
+
+export type WrakerResponse<T = any> = WrakerBaseResponse &
+  Partial<WrakerSuccessResponse<T> & WrakerErrorResponse<T>>;

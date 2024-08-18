@@ -17,7 +17,9 @@ app.all("/reflect", (req, res) => {
 });
 
 app.all("/wait", async (req, res) => {
-  await new Promise((resolve) => setTimeout(resolve, req.body.timeout ?? 1000));
+  await new Promise((resolve) =>
+    setTimeout(resolve, req.body?.timeout ?? 1000)
+  );
   res.send("Done");
 });
 
