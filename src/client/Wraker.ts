@@ -80,8 +80,6 @@ export class Wraker {
     this._worker.addEventListener("message", (event) => {
       const data = event.data;
       const headers = new WrakerHeaders(event.data.headers);
-      if (!headers) return;
-
       const xRequestId = headers.get("X-Request-ID");
       const request = this._requests.get(xRequestId);
       if (!request) return;
