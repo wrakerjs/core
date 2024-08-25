@@ -21,6 +21,7 @@ export class WrakerAppRequest {
   public readonly method: Method;
   public readonly path: EventPath;
   public readonly headers: WrakerHeaders;
+  public readonly cookies: Record<string, any>;
   public body: EventData;
   public readonly res: WrakerAppResponse;
   public readonly app: WrakerRouter;
@@ -32,6 +33,7 @@ export class WrakerAppRequest {
     this.path = options.path;
     this.body = options.body;
     this.headers = new WrakerHeaders(options.headers);
+    this.cookies = Cookies;
 
     this.res = new WrakerAppResponse({
       req: this,
