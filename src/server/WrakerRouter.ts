@@ -1,8 +1,5 @@
-import {
-  WrakerAppRequest,
-  EventHandler,
-  StructuredEventHandler as Layer,
-} from "./Handler";
+import { EventHandler, StructuredEventHandler as Layer } from "./Handler";
+import { WrakerAppRequest } from "./WrakerAppRequest";
 import {
   type Method,
   type EventPath,
