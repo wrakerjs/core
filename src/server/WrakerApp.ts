@@ -35,14 +35,7 @@ export class WrakerApp extends WrakerRouter {
 
         const headers = data.headers;
 
-        if (!data.method || !data.path) {
-          this._sendError({
-            headers: headers || {},
-            error: "Baq Request",
-            status: 400,
-          });
-          return;
-        }
+        if (!data.method || !data.path) return;
 
         this._process({
           method: data.method,

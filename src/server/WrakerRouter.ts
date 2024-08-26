@@ -156,22 +156,6 @@ export class WrakerRouter extends EventTarget {
     return this._stack;
   }
 
-  protected _send(args: WrakerSuccessResponse) {
-    globalThis.postMessage({
-      headers: args.headers,
-      status: args.status,
-      body: args.body,
-    });
-  }
-
-  protected _sendError(args: WrakerErrorResponse) {
-    globalThis.postMessage({
-      headers: args.headers,
-      status: args.status,
-      error: args.error,
-    });
-  }
-
   protected async _process(_request: WrakerRequest) {
     const { method, path } = _request;
 
@@ -184,11 +168,7 @@ export class WrakerRouter extends EventTarget {
         [method.toLowerCase(), "all"].includes(handler.method)
     );
 
-    const request = new WrakerAppRequest(this, {
-      ..._request,
-      sendFn: this._send.bind(this),
-      sendErrorFn: this._sendError.bind(this),
-    });
+    const request = new WrakerAppRequest(this, _request);
 
     let finished = false;
     for (const layer of layers) {
@@ -211,23 +191,14 @@ export class WrakerRouter extends EventTarget {
         await layer.handler(request, request.res, next);
         if (!nextUsed) return;
       } catch (error) {
-        if (request.res.statusCode === 0) request.res.statusCode = 500;
-
-        this._sendError({
-          headers: request.res.headers.serialize(),
-          error: error,
-          status: request.res.statusCode,
-        });
+        request.res.sendError(error);
         return;
       }
     }
 
     if (!finished) {
-      this._sendError({
-        headers: _request.headers || {},
-        error: "Not Found",
-        status: 404,
-      });
+      request.res.status(404);
+      request.res.sendError("Not Found");
     }
   }
 }

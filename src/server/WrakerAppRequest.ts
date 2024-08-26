@@ -12,10 +12,7 @@ import {
 import { WrakerAppResponse } from "./WrakerAppResponse";
 import type { WrakerRouter } from "./WrakerRouter";
 
-export interface WrakerAppRequestConstructorOptions extends WrakerRequest {
-  sendFn: (args: WrakerSuccessResponse) => void;
-  sendErrorFn: (args: WrakerErrorResponse) => void;
-}
+export interface WrakerAppRequestConstructorOptions extends WrakerRequest {}
 
 export class WrakerAppRequest {
   public readonly method: Method;
@@ -35,11 +32,7 @@ export class WrakerAppRequest {
     this.headers = new WrakerHeaders(options.headers);
     this.cookies = Cookies;
 
-    this.res = new WrakerAppResponse({
-      req: this,
-      sendFn: options.sendFn,
-      sendErrorFn: options.sendErrorFn,
-    });
+    this.res = new WrakerAppResponse(this);
   }
 }
 

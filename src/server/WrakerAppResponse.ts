@@ -4,7 +4,7 @@ import {
   WrakerHeaders,
   WrakerSuccessResponse,
 } from "../common";
-import type { WrakerAppRequest } from "./WrakerAppRequest";
+import { WrakerAppRequest } from "./WrakerAppRequest";
 import type { WrakerRouter } from "./WrakerRouter";
 
 export interface WrakerAppResponseOptions {
@@ -17,27 +17,30 @@ export interface WrakerAppResponseConstructorOptions
   sendErrorFn: (args: WrakerErrorResponse) => void;
 }
 
+export class ResponseAlreadySentException extends Error {}
+
 export class WrakerAppResponse implements WrakerAppResponseOptions {
+  private static NEVER_STATUS: -1;
+
   public readonly app: WrakerRouter;
-  private _status: number = 0;
+  private _status: number = WrakerAppResponse.NEVER_STATUS;
   public readonly headers: WrakerHeaders = new WrakerHeaders();
   public body: EventData;
-
-  private _sendFn: (args: WrakerSuccessResponse) => void;
-  private _sendErrorFn: (args: WrakerErrorResponse) => void;
-
   public readonly req: WrakerAppRequest;
+
   private _finished: boolean = false;
 
-  constructor(options: WrakerAppResponseConstructorOptions) {
-    this.app = options.req.app;
-    this.req = options.req;
-    this._sendFn = options.sendFn;
-    this._sendErrorFn = options.sendErrorFn;
+  constructor(req: WrakerAppRequest) {
+    this.app = req.app;
+    this.req = req;
 
     if (this.req.headers.has("X-Request-ID")) {
       this.headers.set("X-Request-ID", this.req.headers.get("X-Request-ID"));
     }
+  }
+
+  private __internalSend(data: any) {
+    globalThis.postMessage(data);
   }
 
   public get statusCode(): number {
@@ -62,7 +65,13 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
   }
 
   public send(body: EventData): void {
-    this._sendFn({
+    if (this.finished)
+      throw new ResponseAlreadySentException("Reponse was already sent.");
+
+    if (this.statusCode === WrakerAppResponse.NEVER_STATUS)
+      this.statusCode = 200;
+
+    this.__internalSend({
       headers: this.headers.serialize(),
       status: this.statusCode,
       body: body,
@@ -71,23 +80,25 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
     this._end();
   }
 
+  public sendError(error: any): void;
+  public sendError(error: any): void {
+    this.__internalSend({
+      headers: this.headers.serialize(),
+      status: this.statusCode,
+      error,
+    });
+  }
+
   public json(body: EventData): void {
-    try {
-      const json = JSON.stringify(body);
-      this.headers.set("Content-Type", "application/json");
-      this.send(json);
-    } catch (error) {
-      this._sendErrorFn({
-        headers: this.headers.serialize(),
-        error: "Body is not a valid JSON object",
-        status: 500,
-      });
-    }
+    const json = JSON.stringify(body);
+    this.headers.set("Content-Type", "application/json");
+    this.send(json);
 
     this._end();
   }
 
   public end(): void {
-    this.send(null);
+    this.send(undefined);
   }
 }
+
