@@ -1,5 +1,10 @@
 import { describe, expect, it, vitest } from "vitest";
-import { WrakerApp, WrakerAppRequest, WrakerAppResponse } from "../..";
+import {
+  WrakerApp,
+  WrakerAppRequest,
+  WrakerAppResponse,
+  WrakerHeaders,
+} from "../..";
 
 describe("WrakerAppRequest", () => {
   it("should initialize properly", () => {
@@ -12,13 +17,12 @@ describe("WrakerAppRequest", () => {
       },
       method: "GET",
       path: "/",
-      sendErrorFn: vitest.fn(),
-      sendFn: vitest.fn(),
     });
 
     expect(request).toBeDefined();
     expect(request.app).toBe(app);
     expect(request.body).toEqual("body");
+    expect(request.headers).toBeInstanceOf(WrakerHeaders);
     expect(request.headers.get("x-request-id")).toEqual("123");
     expect(request.method).toEqual("GET");
     expect(request.path).toEqual("/");
