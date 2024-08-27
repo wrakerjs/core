@@ -147,4 +147,33 @@ describe("WrakerAppResponse", () => {
       expect(error).toBeInstanceOf(ResponseAlreadySentException);
     }
   });
+
+  it("can send error and only once", async () => {
+    const response = new MockWrakerAppResponse(request);
+
+    const promise = new Promise<WrakerResponse>((resolve) => {
+      globalThis.addEventListener("postMessage", (event: Event) => {
+        if (!(event instanceof CustomEvent)) return;
+        resolve(event.detail);
+      });
+    });
+
+    const error = new Error("Woops, error");
+
+    response.sendError(error);
+    const data = await promise;
+
+    expect(data.error.message).toEqual("Woops, error");
+    expect(data.status).toEqual(500);
+
+    try {
+      response.send("anything");
+
+      expect.fail("Response.end should have failed.");
+    } catch (error) {
+      if (error instanceof AssertionError) throw error;
+
+      expect(error).toBeInstanceOf(ResponseAlreadySentException);
+    }
+  });
 });

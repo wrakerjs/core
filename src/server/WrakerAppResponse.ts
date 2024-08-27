@@ -82,11 +82,19 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
 
   public sendError(error: any): void;
   public sendError(error: any): void {
+    if (this.finished)
+      throw new ResponseAlreadySentException("Reponse was already sent.");
+
+    if (this.statusCode === WrakerAppResponse.NEVER_STATUS)
+      this.statusCode = 500;
+
     this.__internalSend({
       headers: this.headers.serialize(),
       status: this.statusCode,
       error,
     });
+
+    this._end();
   }
 
   public json(body: EventData): void {
