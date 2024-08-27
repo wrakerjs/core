@@ -49,6 +49,20 @@ describe("WrakerAppResponse", () => {
     expect(response.headers).toBeInstanceOf(WrakerHeaders);
   });
 
+  it("should have same x-request-id as request", () => {
+    const response = new WrakerAppResponse(request);
+
+    expect(response.headers.get("X-Request-Id")).toEqual("123");
+  });
+
+  it("should have no x-request-id if request has none", () => {
+    request.headers.delete("X-Request-Id");
+
+    const response = new WrakerAppResponse(request);
+
+    expect(response.headers.get("X-Request-Id")).toBeUndefined();
+  });
+
   it("should keep a given status code", () => {
     const response = new WrakerAppResponse(request);
 
@@ -58,6 +72,38 @@ describe("WrakerAppResponse", () => {
     const chaining = response.status(2);
     expect(chaining).toBe(response);
     expect(response.statusCode).toEqual(2);
+  });
+
+  it("should send a default status code", async () => {
+    const response = new MockWrakerAppResponse(request);
+
+    const promise = new Promise<WrakerResponse>((resolve) => {
+      globalThis.addEventListener("postMessage", (event: Event) => {
+        if (!(event instanceof CustomEvent)) return;
+        resolve(event.detail);
+      });
+    });
+
+    response.send("anything");
+    const data = await promise;
+
+    expect(data.status).toEqual(200);
+  });
+
+  it("should send a default error status code", async () => {
+    const response = new MockWrakerAppResponse(request);
+
+    const promise = new Promise<WrakerResponse>((resolve) => {
+      globalThis.addEventListener("postMessage", (event: Event) => {
+        if (!(event instanceof CustomEvent)) return;
+        resolve(event.detail);
+      });
+    });
+
+    response.sendError("anything");
+    const data = await promise;
+
+    expect(data.status).toEqual(500);
   });
 
   it("can be ended and only once", async () => {
@@ -158,16 +204,17 @@ describe("WrakerAppResponse", () => {
       });
     });
 
-    const error = new Error("Woops, error");
+    const error = new Error("404 - Not Found");
 
+    response.status(404);
     response.sendError(error);
     const data = await promise;
 
-    expect(data.error.message).toEqual("Woops, error");
-    expect(data.status).toEqual(500);
+    expect(data.error).toBeInstanceOf(Error);
+    expect(data.status).toEqual(404);
 
     try {
-      response.send("anything");
+      response.sendError("anything");
 
       expect.fail("Response.end should have failed.");
     } catch (error) {
