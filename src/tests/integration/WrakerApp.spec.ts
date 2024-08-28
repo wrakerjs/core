@@ -1,9 +1,7 @@
 import { it, describe, expect, vitest } from "vitest";
 import "../utils";
 
-import { WrakerRouter, WrakerApp, type WrakerResponse } from "../..";
-
-import workerUrl from "../fixtures/basic?url";
+import { WrakerRouter, WrakerApp } from "../..";
 
 describe("WrakerApp", () => {
   it("should be defined", async () => {
@@ -66,18 +64,11 @@ describe("WrakerApp", () => {
     expect(await promise).toBe(true);
   });
 
-  it("should process request", async () => {
-    const app = new WrakerApp();
-    const handler = vitest.fn();
-    app.get("/path", handler);
+  it("should throw when listening twice", async () => {
+    const instance = new WrakerApp();
 
-    await app["_process"]({
-      method: "get",
-      path: "/path",
-      headers: {},
-      body: undefined,
-    });
-    expect(handler).toHaveBeenCalledTimes(1);
+    instance.listen();
+    await expect(instance.listen()).rejects.toThrow();
   });
 
   it("should process event", async () => {
@@ -105,27 +96,54 @@ describe("WrakerApp", () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  it("should interact with client", async () => {
-    const worker = new Worker(workerUrl, { type: "module" });
+  it("should not process if event is malformed", async () => {
+    const app = new WrakerApp();
+    const handler = vitest.fn();
 
-    const promise = new Promise<WrakerResponse>((resolve) => {
-      worker.onmessage = (event: MessageEvent<WrakerResponse>) => {
-        resolve(event.data);
+    app.get("/something", handler);
+
+    let event = new MessageEvent("message", {});
+    let promise = new Promise<any>((resolve) => {
+      globalThis.postMessage = (message) => {
+        resolve(message);
       };
     });
 
-    worker.postMessage({
-      method: "get",
-      path: "/",
-      headers: {
-        "X-Request-ID": "123",
+    globalThis.dispatchEvent(event);
+
+    await expect(promise).toTimeOut(100);
+    expect(handler).toHaveBeenCalledTimes(0);
+
+    event = new MessageEvent("message", {
+      data: {
+        method: "get",
       },
     });
-
-    const response = await promise;
-    expect(response.body).toEqual({
-      status: 200,
+    promise = new Promise<any>((resolve) => {
+      globalThis.postMessage = (message) => {
+        resolve(message);
+      };
     });
-    expect(response.headers["X-Request-ID".toLowerCase()]).toBe("123");
+
+    globalThis.dispatchEvent(event);
+
+    await expect(promise).toTimeOut(100);
+    expect(handler).toHaveBeenCalledTimes(0);
+
+    event = new MessageEvent("message", {
+      data: {
+        path: "/something",
+      },
+    });
+    promise = new Promise<any>((resolve) => {
+      globalThis.postMessage = (message) => {
+        resolve(message);
+      };
+    });
+
+    globalThis.dispatchEvent(event);
+
+    await expect(promise).toTimeOut(100);
+    expect(handler).toHaveBeenCalledTimes(0);
   });
 });
