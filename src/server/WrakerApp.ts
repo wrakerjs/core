@@ -19,7 +19,7 @@ export class WrakerApp extends WrakerRouter {
     super(options);
     this._mountpath = "/";
 
-    this.addEventListener("wraker-router:mount", (event) => {
+    this.addEventListener("wraker-router:mounted", (event) => {
       if (!(event instanceof CustomEvent)) return;
 
       this._mountCallbacks.forEach((callback) => {
