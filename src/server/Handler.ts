@@ -5,9 +5,15 @@ import { WrakerRouter } from "./WrakerRouter";
 
 export type WrakerAppNext = (err?: any) => void;
 
-export type StructuredEventHandler = {
-  path: EventPath;
-  method: Method;
+export const METHOD_ALL = "all";
+export type LayerMethod = Method | typeof METHOD_ALL;
+
+export const PATH_ALL = "*";
+export type LayerEventPath = EventPath | typeof PATH_ALL;
+
+export type Layer = {
+  path: LayerEventPath;
+  method: LayerMethod;
   handler: EventHandler;
 };
 
