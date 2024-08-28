@@ -80,8 +80,8 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
     this._end();
   }
 
-  public sendError(error: any): void;
-  public sendError(error: any): void {
+  public sendError(error: EventData): void;
+  public sendError(error: EventData): void {
     if (this.finished)
       throw new ResponseAlreadySentException("Reponse was already sent.");
 
