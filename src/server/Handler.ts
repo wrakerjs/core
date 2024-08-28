@@ -22,7 +22,8 @@ export type EventHandler = EventHandlerFn | WrakerRouter;
 export type EventHandlerFn = (
   req: WrakerAppRequest,
   res: WrakerAppResponse,
-  next: WrakerAppNext
+  next: WrakerAppNext,
+  err?: any
 ) => void;
 
 // export type ParamEventHandler = (
