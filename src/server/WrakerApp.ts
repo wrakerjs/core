@@ -1,16 +1,9 @@
 import { WrakerHeaders, type WrakerRequest } from "../common";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
-export interface WrakerAppLocals {
-  [key: string]: any;
-}
-
-export interface WrakerAppOptions extends WrakerRouterOptions {
-  locals?: WrakerAppLocals;
-}
+export interface WrakerAppOptions extends WrakerRouterOptions {}
 
 export class WrakerApp extends WrakerRouter {
-  public locals: WrakerAppLocals = {};
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();
   private _ready: boolean = false;

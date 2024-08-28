@@ -16,11 +16,6 @@ describe("WrakerApp", () => {
     expect(instance.mountpath).toBeDefined();
   });
 
-  it("should have a locals object", async () => {
-    const instance = new WrakerApp();
-    expect(instance.locals).toBeDefined();
-  });
-
   it("should receive mount event", async () => {
     const instance = new WrakerApp();
     const api = new WrakerApp();

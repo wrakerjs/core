@@ -7,6 +7,10 @@ import {
 import { WrakerAppRequest } from "./WrakerAppRequest";
 import type { WrakerRouter } from "./WrakerRouter";
 
+export interface WrakerAppLocals {
+  [key: string]: any;
+}
+
 export interface WrakerAppResponseOptions {
   req: WrakerAppRequest;
 }
@@ -20,6 +24,8 @@ export interface WrakerAppResponseConstructorOptions
 export class ResponseAlreadySentException extends Error {}
 
 export class WrakerAppResponse implements WrakerAppResponseOptions {
+  public readonly locals: WrakerAppLocals = {};
+
   private static NEVER_STATUS: -1;
 
   public readonly app: WrakerRouter;
