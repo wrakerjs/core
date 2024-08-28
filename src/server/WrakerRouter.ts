@@ -1,15 +1,14 @@
 import {
-  WrakerAppRequest,
   EventHandler,
-  StructuredEventHandler as Layer,
+  Layer,
+  METHOD_ALL,
+  PATH_ALL,
+  type LayerEventPath,
+  type LayerMethod,
+  type WrakerAppNext,
 } from "./Handler";
-import {
-  type Method,
-  type EventPath,
-  type WrakerRequest,
-  type WrakerErrorResponse,
-  type WrakerSuccessResponse,
-} from "../common";
+import { WrakerAppRequest } from "./WrakerAppRequest";
+import { type EventPath, type WrakerRequest } from "../common";
 
 export type WrakerRouterOptions = {
   path: EventPath;
@@ -17,7 +16,7 @@ export type WrakerRouterOptions = {
 
 export class WrakerRouter extends EventTarget {
   private _stack: Array<Layer> = new Array();
-  private _path: EventPath;
+  private _path: LayerEventPath;
 
   constructor(options?: Partial<WrakerRouterOptions>) {
     super();
@@ -25,28 +24,43 @@ export class WrakerRouter extends EventTarget {
   }
 
   private _method(
-    method: Method,
-    path: EventPath,
+    method: LayerMethod,
+    path: LayerEventPath,
     ...handlers: EventHandler[]
   ): WrakerRouter {
     handlers.forEach((handler) => {
       this._stack.push({ path, method, handler });
 
-      if (handler instanceof WrakerRouter)
+      if (handler instanceof WrakerRouter) {
         this.dispatchEvent(
-          new CustomEvent("wraker-router:mount", {
+          new CustomEvent("wraker-router:mounted", {
             detail: {
-              app: this,
               handler,
             },
           })
         );
+
+        handler.dispatchEvent(
+          new CustomEvent("wraker-router:mount", {
+            detail: {
+              app: this,
+            },
+          })
+        );
+      }
     });
     return this;
   }
 
+  private _all(
+    path: LayerEventPath,
+    ...handlers: EventHandler[]
+  ): WrakerRouter {
+    return this._method(METHOD_ALL, path, ...handlers);
+  }
+
   public all(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
-    return this._method("all", path, ...handlers);
+    return this._all(path, ...handlers);
   }
   public checkout(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("checkout", path, ...handlers);
@@ -144,7 +158,7 @@ export class WrakerRouter extends EventTarget {
       return this;
     }
 
-    this.all("*", arg);
+    this._all(PATH_ALL, arg);
 
     if (handlers && handlers.length > 0) this.use(...handlers);
 
@@ -159,78 +173,48 @@ export class WrakerRouter extends EventTarget {
     return this._stack;
   }
 
-  protected _send(args: WrakerSuccessResponse) {
-    globalThis.postMessage({
-      headers: args.headers,
-      status: args.status,
-      body: args.body,
-    });
-  }
-
-  protected _sendError(args: WrakerErrorResponse) {
-    globalThis.postMessage({
-      headers: args.headers,
-      status: args.status,
-      error: args.error,
-    });
-  }
-
   protected async _process(_request: WrakerRequest) {
     const { method, path } = _request;
 
     const layers = this._stack.filter(
       (handler) =>
-        (handler.path === "*" ||
+        (handler.path === PATH_ALL ||
           handler.path === path ||
           (handler.handler instanceof WrakerRouter &&
             path.startsWith(handler.path))) &&
-        [method.toLowerCase(), "all"].includes(handler.method)
+        [method.toLowerCase(), METHOD_ALL].includes(handler.method)
     );
 
-    const request = new WrakerAppRequest(this, {
-      ..._request,
-      sendFn: this._send.bind(this),
-      sendErrorFn: this._sendError.bind(this),
-    });
+    const request = new WrakerAppRequest(this, _request);
 
-    let finished = false;
     for (const layer of layers) {
-      if (finished) break;
-
       if (layer.handler instanceof WrakerRouter) {
         await layer.handler._process({
           ..._request,
-          path: path.slice(layer.path.length) ?? "/",
+          path: `/${path.slice(layer.path.length)}`,
         });
         continue;
       }
 
       let nextUsed = false;
-      function next() {
+      let nextError: any;
+      const next: WrakerAppNext = (err?: any) => {
         nextUsed = true;
-      }
+        nextError = err;
+      };
 
       try {
         await layer.handler(request, request.res, next);
         if (!nextUsed) return;
-      } catch (error) {
-        if (request.res.statusCode === 0) request.res.statusCode = 500;
 
-        this._sendError({
-          headers: request.res.headers.serialize(),
-          error: error,
-          status: request.res.statusCode,
-        });
+        if (nextError) throw nextError;
+      } catch (error) {
+        request.res.sendError(error);
         return;
       }
     }
 
-    if (!finished) {
-      this._sendError({
-        headers: _request.headers || {},
-        error: "Not Found",
-        status: 404,
-      });
-    }
+    request.res.status(404);
+    request.res.sendError("Not Found");
   }
 }

@@ -1,6 +1,7 @@
 import {
   WrakerHeaders,
   type EventData,
+  type EventPath,
   type WrakerRequest,
   type WrakerResponse,
 } from "../common";
@@ -122,7 +123,7 @@ export class Wraker {
    * console.log(data.body); // Hello, world!
    */
   public async fetch<Result = EventData>(
-    path: string,
+    path: EventPath,
     options?: WrakerFetchOptions
   ): Promise<WrakerResponse<Result>> {
     const xRequestId = uuid();

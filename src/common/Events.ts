@@ -1,5 +1,4 @@
 type LowercaseMethod =
-  | "all"
   | "checkout"
   | "copy"
   | "delete"
@@ -26,7 +25,7 @@ type LowercaseMethod =
 
 export type Method = LowercaseMethod | Uppercase<LowercaseMethod>;
 
-export type EventPath = string;
+export type EventPath = `/${string}`;
 
 /**
  * A request body

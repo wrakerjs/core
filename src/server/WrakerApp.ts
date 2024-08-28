@@ -1,16 +1,9 @@
-import { WrakerHeaders, type WrakerRequest } from "../common";
+import { type WrakerRequest } from "../common";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
-export interface WrakerAppLocals {
-  [key: string]: any;
-}
-
-export interface WrakerAppOptions extends WrakerRouterOptions {
-  locals?: WrakerAppLocals;
-}
+export interface WrakerAppOptions extends WrakerRouterOptions {}
 
 export class WrakerApp extends WrakerRouter {
-  public locals: WrakerAppLocals = {};
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();
   private _ready: boolean = false;
@@ -19,9 +12,7 @@ export class WrakerApp extends WrakerRouter {
     super(options);
     this._mountpath = "/";
 
-    this.addEventListener("wraker-router:mount", (event) => {
-      if (!(event instanceof CustomEvent)) return;
-
+    this.addEventListener("wraker-router:mounted", (event) => {
       this._mountCallbacks.forEach((callback) => {
         if (event.detail.handler instanceof WrakerApp) callback(event.detail);
       });
@@ -35,14 +26,7 @@ export class WrakerApp extends WrakerRouter {
 
         const headers = data.headers;
 
-        if (!data.method || !data.path) {
-          this._sendError({
-            headers: headers || {},
-            error: "Baq Request",
-            status: 400,
-          });
-          return;
-        }
+        if (!data.method || !data.path) return;
 
         this._process({
           method: data.method,
@@ -62,15 +46,15 @@ export class WrakerApp extends WrakerRouter {
     this._mountCallbacks.push(callback);
   }
 
-  public disable(name: string) {}
-  public disabled(name: string) {}
-  public enable(name: string) {}
-  public enabled(name: string) {}
+  // public disable(name: string) {}
+  // public disabled(name: string) {}
+  // public enable(name: string) {}
+  // public enabled(name: string) {}
 
-  public engine(name: string, callback: Function) {
-    // TODO: Implement or discard
-    throw new Error("Method not implemented.");
-  }
+  // public engine(name: string, callback: Function) {
+  //   // TODO: Implement or discard
+  //   throw new Error("Method not implemented.");
+  // }
 
   public async listen(callback?: Function): Promise<void> {
     if (this._ready) throw new Error("WrakerApp is already listening");
@@ -79,10 +63,10 @@ export class WrakerApp extends WrakerRouter {
     if (callback) callback();
     else return Promise.resolve();
   }
-  public render(name: string, options: any, callback: Function) {
-    // TODO: Implement or discard
-    throw new Error("Method not implemented.");
-  }
+  //   public render(name: string, options: any, callback: Function) {
+  //     // TODO: Implement or discard
+  //     throw new Error("Method not implemented.");
+  //   }
 
-  public set(setting: string, value: any) {}
+  //   public set(setting: string, value: any) {}
 }

@@ -19,8 +19,10 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "vitest --watch --no-coverage",
+    "dev:coverage": "vitest --watch --coverage",
     "test": "vitest --no-watch --no-coverage",
     "coverage": "vitest --no-watch --coverage",
+    "test:coverage": "npm run coverage",
     "bump:patch": "npm version patch && git push && git push --tags",
     "bump:minor": "npm version minor && git push && git push --tags",
     "bump:major": "npm version major && git push && git push --tags",
@@ -57,6 +59,8 @@
     "vitest": "^2.0.4"
   },
   "dependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "js-cookie": "^3.0.5",
     "uuid": "^10.0.0"
   }
 }

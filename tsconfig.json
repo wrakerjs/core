@@ -7,7 +7,7 @@
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "allowUnreachableCode": false,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
@@ -15,6 +15,6 @@
     "types": ["vite/client"]
   },
 
-  "include": ["src", "src/tests/types"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
