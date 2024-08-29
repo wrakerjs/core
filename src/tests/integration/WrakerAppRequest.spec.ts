@@ -1,4 +1,6 @@
-import { describe, expect, it, vitest } from "vitest";
+import { describe, expect, it } from "vitest";
+import "../utils";
+
 import {
   WrakerApp,
   WrakerAppRequest,
@@ -24,7 +26,7 @@ describe("WrakerAppRequest", () => {
     expect(request.body).toEqual("body");
     expect(request.headers).toBeInstanceOf(WrakerHeaders);
     expect(request.headers.get("x-request-id")).toEqual("123");
-    expect(request.method).toEqual("GET");
+    expect(request.method).toEqualCaseInsensitive("GET");
     expect(request.path).toEqual("/");
     expect(request.res).toBeInstanceOf(WrakerAppResponse);
     expect(request.cookies).toBeDefined();

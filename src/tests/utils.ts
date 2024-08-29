@@ -8,7 +8,7 @@ const timeoutMs = (ms: number) =>
   }).then((_) => TIMED_OUT);
 
 expect.extend({
-  async toTimeOut(promise, ms) {
+  async toTimeOut(promise: Promise<any>, ms: number) {
     const [resolved] = await Promise.race([promise, timeoutMs(ms)])
       .then((x) => [x])
       .catch((err) => [undefined, err]);
@@ -25,6 +25,26 @@ expect.extend({
           message: () => `Expected promise not to complete within ${ms}ms`,
         };
   },
+
+  toEqualCaseInsensitive(received: string, expected: string) {
+    return received.localeCompare(expected, undefined, {
+      sensitivity: "accent",
+    }) === 0
+      ? {
+          pass: true,
+          message: () =>
+            `Expected "${received}" to equal ${expected} (case-insensitive)`,
+          actual: received,
+          expected,
+        }
+      : {
+          pass: false,
+          message: () =>
+            `Expected "${received}" not to equal ${expected} (case-insensitive)`,
+          actual: received,
+          expected,
+        };
+  },
 });
 
 /**
@@ -37,8 +57,8 @@ export function __dproc(
   options: Omit<Omit<WrakerRequest, "headers">, "body"> & Partial<WrakerRequest>
 ): WrakerRequest {
   return {
+    ...options,
     headers: options.headers || {},
     body: options.body,
-    ...options,
   };
 }

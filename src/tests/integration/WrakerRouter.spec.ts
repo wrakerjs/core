@@ -4,7 +4,6 @@ import {
   type LayerMethod,
   type Method,
   METHOD_ALL,
-  PATH_ALL,
   type WrakerAppRequest,
   WrakerAppResponse,
   type WrakerRequest,
@@ -144,11 +143,11 @@ describe("WrakerRouter", () => {
 
     expect(router.stack).toHaveLength(2);
     expect(router.stack[0].method).toEqual(METHOD_ALL);
-    expect(router.stack[0].path).toEqual(PATH_ALL);
+    expect(router.stack[0].all).toEqual(true);
     expect(router.stack[0].handler).toBe(sub);
 
     expect(router.stack[1].method).toEqual(METHOD_ALL);
-    expect(router.stack[1].path).toEqual(PATH_ALL);
+    expect(router.stack[1].all).toEqual(true);
     expect(router.stack[1].handler).toBe(sub2);
   });
 
@@ -265,33 +264,133 @@ describe("WrakerRouter", () => {
     const handler = vi.fn();
     const handler2 = vi.fn();
     const handler3 = vi.fn();
+    const handler4 = vi.fn();
 
-    router.use("/no-sub", sub);
-    sub.get("/match", handler);
+    router.use("/no-foo", sub);
+    sub.get("/bar", handler);
 
-    /**
-     * ! There is a bug/vulnerability here.
-     *
-     * TODO: Use path.join-like apis to prevent subrouter path from being forged.
-     */
+    router.use("/fo", sub2);
+    sub2.get("/o/bar", handler2);
 
-    router.use("/su", sub2);
-    sub2.get("/b/match", handler2);
+    router.use("/foo", sub3);
+    sub3.get("/no-bar", handler2);
+    sub3.get("/bar", handler3);
+    sub3.post("/bar", handler3);
 
-    router.use("/sub", sub3);
-    sub3.get("/no-match", handler2);
-    sub3.get("/match", handler3);
+    router.get("/foo/bar", handler4);
 
     const request: WrakerRequest<void> = __dproc({
       method: "GET",
-      path: "/sub/match",
+      path: "/foo/bar",
     });
 
     await router["_process"](request);
 
-    // expect(handler).toHaveBeenCalledTimes(0);
-    // expect(handler2).toHaveBeenCalledTimes(0);
-    // expect(handler3).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledTimes(0);
+    expect(handler2).toHaveBeenCalledTimes(0);
+    expect(handler3).toHaveBeenCalledTimes(1);
+    expect(handler4).toHaveBeenCalledTimes(1);
+  });
+
+  it("should match (batch test)", async () => {
+    const router = new WrakerRouter();
+
+    let logs: string[] = [];
+
+    router.use((_req, _res, next) => {
+      logs.push("all@all");
+      next();
+    });
+    router.use("/match", (_req, _res, next) => {
+      logs.push("all@/match");
+      next();
+    });
+    router.get("/match", (_req, _res, next) => {
+      logs.push("get@/match");
+      next();
+    });
+    router.get("/match/", (_req, _res, next) => {
+      logs.push("get@/match/");
+      next();
+    });
+
+    const sub = new WrakerRouter({ path: "/match" });
+    sub.all("/", (_req, _res, next) => {
+      logs.push("all@sub/:/match:/");
+      next();
+    });
+    router.use(sub);
+
+    const sub2 = new WrakerRouter();
+    sub2.all("/", (_req, _res, next) => {
+      logs.push("all@sub2/match:/");
+      next();
+    });
+    router.use("/match", sub2);
+
+    await router["_process"](
+      __dproc({
+        method: "GET",
+        path: "/match",
+      })
+    );
+    expect(logs).toEqual([
+      "all@all",
+      "all@/match",
+      "get@/match",
+      "all@sub/:/match:/",
+      "all@sub2/match:/",
+    ]);
+
+    logs = [];
+    await router["_process"](
+      __dproc({
+        method: "GET",
+        path: "/match/",
+      })
+    );
+
+    expect(logs).toEqual(["all@all", "get@/match/", "all@sub2/match:/"]);
+  });
+
+  it("should match WrakerRouter with path", async () => {
+    const router = new WrakerRouter();
+    const sub = new WrakerRouter({ path: "/match" });
+    const sub2 = new WrakerRouter();
+    const sub3 = new WrakerRouter();
+
+    const logs: string[] = [];
+
+    router.use("/", sub);
+    sub.get("/", (_req, _res, next) => {
+      logs.push("get@/match:/:/");
+      next();
+    });
+
+    router.use("/", sub2);
+    sub2.get("/match", (_req, _res, next) => {
+      logs.push("get@/:/:/match");
+      next();
+    });
+
+    router.use("/match", sub3);
+    sub3.get("/", (_req, _res, next) => {
+      logs.push("get@/:/match:/");
+      next();
+    });
+
+    const request: WrakerRequest<void> = __dproc({
+      method: "GET",
+      path: "/match",
+    });
+
+    await router["_process"](request);
+
+    expect(logs).toEqual([
+      "get@/match:/:/",
+      "get@/:/:/match",
+      "get@/:/match:/",
+    ]);
   });
 
   it("should use next handler", async () => {
@@ -340,5 +439,39 @@ describe("WrakerRouter", () => {
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler2).toHaveBeenCalledTimes(0);
     expect(handler3).toHaveBeenCalledTimes(0);
+  });
+
+  it("should handle route groups", async () => {
+    const router = new WrakerRouter();
+    const middleware = vi.fn((_req, _res, next) => next());
+    const handler = vi.fn();
+    const handler2 = vi.fn();
+
+    router
+      .route("/users")
+      .use(middleware)
+      .get("/", handler)
+      .get("/new", handler2);
+
+    await router["_process"](
+      __dproc({
+        method: "GET",
+        path: "/users",
+      })
+    );
+    expect(middleware).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler2).toHaveBeenCalledTimes(0);
+
+    await router["_process"](
+      __dproc({
+        method: "GET",
+        path: "/users/new",
+      })
+    );
+
+    expect(middleware).toHaveBeenCalledTimes(2);
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler2).toHaveBeenCalledTimes(1);
   });
 });
