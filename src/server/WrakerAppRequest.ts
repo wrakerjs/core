@@ -24,7 +24,7 @@ export class WrakerAppRequest {
   constructor(app: WrakerRouter, options: WrakerAppRequestConstructorOptions) {
     this.app = app;
 
-    this.method = options.method;
+    this.method = options.method.toLowerCase() as Method;
     this.path = options.path;
     this.body = options.body;
     this.headers = new WrakerHeaders(options.headers);
