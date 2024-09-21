@@ -1,4 +1,5 @@
-import { describe, expect, it, vitest, beforeEach, chai, vi } from "vitest";
+import { describe, expect, it, beforeEach, chai } from "vitest";
+
 const { AssertionError } = chai;
 import {
   ResponseAlreadySentException,
@@ -62,6 +63,89 @@ describe("WrakerAppResponse", () => {
     expect(response.get("X-Request-Id")).toBeUndefined();
   });
 
+  it("should set headers", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.set("X-Response-Id", "321");
+    expect(response.get("x-response-id")).toEqual("321");
+  });
+
+  it("should have sent headers", () => {
+    const response = new WrakerAppResponse(request);
+
+    expect(response.headersSent).toBe(false);
+
+    response.send("anything");
+
+    expect(response.headersSent).toBe(true);
+  });
+
+  it("should append headers", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.append("h1", "321");
+    expect(response.get("h1")).toEqual("321");
+
+    response.append("h2", ["A", "B"]);
+    expect(response.get("h2")).toEqual("A; B");
+  });
+
+  it("should have links", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.links({
+      next: "/next",
+      last: "/last",
+    });
+
+    expect(response.get("Link")).toEqual(
+      '</next>; rel="next", </last>; rel="last"'
+    );
+  });
+
+  it("should send location", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.location("/next");
+
+    expect(response.get("Location")).toEqual("/next");
+  });
+
+  it("should send location back", () => {
+    request["headers"].set("Referer", "/prev");
+    const response = new WrakerAppResponse(request);
+
+    response.location("back");
+
+    expect(response.get("Location")).toEqual("/prev");
+  });
+
+  it("should send location back with no referer", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.location("back");
+
+    expect(response.get("Location")).toEqual("/");
+  });
+
+  it("should redirect", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.redirect(301, "/next");
+
+    expect(response.get("Location")).toEqual("/next");
+    expect(response.statusCode).toEqual(301);
+  });
+
+  it("should redirect with status", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.redirect("/next");
+
+    expect(response.get("Location")).toEqual("/next");
+    expect(response.statusCode).toEqual(302);
+  });
+
   it("should keep a given status code", () => {
     const response = new WrakerAppResponse(request);
 
@@ -103,6 +187,27 @@ describe("WrakerAppResponse", () => {
     const data = await promise;
 
     expect(data.status).toEqual(500);
+  });
+
+  it("should have cookies", (ctx) => {
+    const response = new WrakerAppResponse(request);
+
+    response
+      .cookie("c1", "v1", {
+        path: "/",
+      })
+      .cookie("c2", "v2");
+
+    // TODO: Implement cookies test
+  });
+
+  it("should clear cookies", () => {
+    const response = new WrakerAppResponse(request);
+
+    response.cookie("name", "value");
+    response.clearCookie("name");
+
+    // TODO: Implement cookies test
   });
 
   it("can be ended and only once", async () => {
@@ -181,6 +286,33 @@ describe("WrakerAppResponse", () => {
     expect(new WrakerHeaders(data.headers).get("content-type")).toEqual(
       "application/json"
     );
+
+    try {
+      response.send("anything");
+
+      expect.fail("Response.end should have failed.");
+    } catch (error) {
+      if (error instanceof AssertionError) throw error;
+
+      expect(error).toBeInstanceOf(ResponseAlreadySentException);
+    }
+  });
+
+  it("can send empty json data and only once", async () => {
+    const response = new MockWrakerAppResponse(request);
+
+    const promise = new Promise<WrakerResponse>((resolve) => {
+      globalThis.addEventListener("postMessage", (event: Event) => {
+        if (!(event instanceof CustomEvent)) return;
+        resolve(event.detail);
+      });
+    });
+
+    response.json();
+    const data = await promise;
+
+    expect(data.body).toBeUndefined();
+    expect(new WrakerHeaders(data.headers).get("content-type")).toBeUndefined();
 
     try {
       response.send("anything");
