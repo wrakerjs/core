@@ -38,8 +38,8 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
     this.app = req.app;
     this.req = req;
 
-    if (this.req.headers.has("X-Request-ID")) {
-      this.headers.set("X-Request-ID", this.req.headers.get("X-Request-ID"));
+    if (this.req.get("X-Request-ID")) {
+      this.headers.set("X-Request-ID", this.req.get("X-Request-ID"));
     }
   }
 
@@ -142,7 +142,7 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
 
   public location(url: "back" | string): WrakerAppResponse {
     if (url === "back") {
-      return this.append("Location", this.req.headers.get("Referer") || "/");
+      return this.append("Location", this.req.get("Referer") || "/");
     }
 
     return this.append("Location", url);

@@ -18,7 +18,7 @@ export class WrakerAppRequest {
   public body: EventData;
   public readonly cookies: Record<string, any>;
   // public readonly fresh: boolean;
-  public readonly headers: WrakerHeaders;
+  private readonly headers: WrakerHeaders;
   public readonly hostname: string;
   // public readonly ip: string;
   // public readonly ips: string[];

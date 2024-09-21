@@ -24,8 +24,7 @@ describe("WrakerAppRequest", () => {
     expect(request).toBeDefined();
     expect(request.app).toBe(app);
     expect(request.body).toEqual("body");
-    expect(request.headers).toBeInstanceOf(WrakerHeaders);
-    expect(request.headers.get("x-request-id")).toEqual("123");
+    expect(request.get("x-request-id")).toEqual("123");
     expect(request.method).toEqualCaseInsensitive("GET");
     expect(request.path).toEqual("/");
     expect(request.res).toBeInstanceOf(WrakerAppResponse);
