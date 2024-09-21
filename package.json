@@ -45,6 +45,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.3.0",
     "@types/uuid": "^10.0.0",
     "@vitest/browser": "^2.0.4",
@@ -59,7 +60,6 @@
     "vitest": "^2.0.4"
   },
   "dependencies": {
-    "@types/js-cookie": "^3.0.6",
     "js-cookie": "^3.0.5",
     "uuid": "^10.0.0"
   }
