@@ -153,6 +153,8 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
   public redirect(param1: any, url?: string): void {
     if (typeof param1 === "number") {
       this.status(param1);
+    } else {
+      this.status(302);
     }
 
     this.location(url || param1);
