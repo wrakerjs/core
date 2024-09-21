@@ -46,21 +46,20 @@ describe("WrakerAppResponse", () => {
     expect(response).toBeDefined();
     expect(response.app).toBe(app);
     expect(response.req).toBe(request);
-    expect(response.headers).toBeInstanceOf(WrakerHeaders);
   });
 
   it("should have same x-request-id as request", () => {
     const response = new WrakerAppResponse(request);
 
-    expect(response.headers.get("X-Request-Id")).toEqual("123");
+    expect(response.get("X-Request-Id")).toEqual("123");
   });
 
   it("should have no x-request-id if request has none", () => {
-    request.headers.delete("X-Request-Id");
+    request["headers"].delete("X-Request-Id");
 
     const response = new WrakerAppResponse(request);
 
-    expect(response.headers.get("X-Request-Id")).toBeUndefined();
+    expect(response.get("X-Request-Id")).toBeUndefined();
   });
 
   it("should keep a given status code", () => {
