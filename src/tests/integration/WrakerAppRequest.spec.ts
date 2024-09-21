@@ -31,4 +31,20 @@ describe("WrakerAppRequest", () => {
     expect(request.res).toBeInstanceOf(WrakerAppResponse);
     expect(request.cookies).toBeDefined();
   });
+
+  it("should get header", () => {
+    const app = new WrakerApp();
+
+    const request = new WrakerAppRequest(app, {
+      path: "/any",
+      method: "GET",
+      headers: {
+        "X-Request-Id": "123",
+      },
+      body: {},
+    });
+
+    expect(request.get("x-request-id")).toEqual("123");
+    expect(request.get("does-not-exist")).toBeUndefined();
+  });
 });
