@@ -189,25 +189,21 @@ describe("WrakerAppResponse", () => {
     expect(data.status).toEqual(500);
   });
 
-  it("should have cookies", (ctx) => {
+  it("should have cookies", () => {
     const response = new WrakerAppResponse(request);
 
-    response
-      .cookie("c1", "v1", {
-        path: "/",
-      })
-      .cookie("c2", "v2");
+    response.cookie("key", "value");
 
-    // TODO: Implement cookies test
+    expect(document.cookie).toEqual("key=value");
   });
 
   it("should clear cookies", () => {
     const response = new WrakerAppResponse(request);
 
-    response.cookie("name", "value");
-    response.clearCookie("name");
+    response.cookie("key", "value");
+    response.clearCookie("key");
 
-    // TODO: Implement cookies test
+    expect(document.cookie).toEqual("");
   });
 
   it("can be ended and only once", async () => {
