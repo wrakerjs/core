@@ -4,12 +4,12 @@ const app = new WrakerApp();
 const items = new Map<string | number, any>();
 
 app.use("/items", (req, res, next) => {
-  if (!req.headers.get("Authorization")) {
+  if (!req.get("Authorization")) {
     res.status(401);
     throw new Error("Unauthorized.");
   }
 
-  const token = req.headers.get("Authorization");
+  const token = req.get("Authorization");
   if (token !== "Bearer SUPER_SECRET_TOKEN") {
     res.status(403);
     throw new Error("Forbidden.");

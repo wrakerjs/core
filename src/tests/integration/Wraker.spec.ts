@@ -1,4 +1,5 @@
 import { it, describe, expect, vi, afterEach, beforeEach, chai } from "vitest";
+import "../utils";
 const { AssertionError } = chai;
 
 import { TimeoutException, Wraker } from "../..";
@@ -7,7 +8,7 @@ import FixtureWorker from "../fixtures/basic?worker";
 class WorkerMock extends Worker {
   public static testing: string;
 
-  postMessage(message: MessageEvent) {
+  postMessage(message: any) {
     switch (WorkerMock.testing) {
       case "hello":
         {
@@ -32,6 +33,12 @@ class WorkerMock extends Worker {
       case "timeout":
         break;
 
+      case "ignore":
+        // Modify the X-Request-ID to simulate a request that was not found
+        message.headers = { "X-Request-ID": "FAKE" };
+        this.dispatchEvent(new MessageEvent("message", { data: message }));
+        break;
+
       default:
         this.dispatchEvent(new MessageEvent("message", { data: message }));
         break;
@@ -50,18 +57,32 @@ describe("Wraker", () => {
   });
 
   it("should initialize from Worker interface", async () => {
+    const spyAddEventListener = vi.spyOn(Worker.prototype, "addEventListener");
+
     const instance = new Wraker(fixtureWorkerUrl, {
       type: "module",
     });
 
     expect(instance).toBeDefined();
+    expect(spyAddEventListener).toHaveBeenNthCalledWith(
+      1,
+      "message",
+      expect.any(Function)
+    );
   });
 
   it("should initialize properly from existing worker", async () => {
+    const spyAddEventListener = vi.spyOn(Worker.prototype, "addEventListener");
+
     const worker = new FixtureWorker();
     const instance = Wraker.fromWorker(worker);
 
     expect(instance).toBeDefined();
+    expect(spyAddEventListener).toHaveBeenNthCalledWith(
+      1,
+      "message",
+      expect.any(Function)
+    );
   });
 
   it("should send fetch requests", async () => {
@@ -144,5 +165,16 @@ describe("Wraker", () => {
       if (error instanceof AssertionError) throw error;
       expect(error).toBeInstanceOf(TimeoutException);
     }
+  });
+
+  it("should ignore event if no request was found", async () => {
+    WorkerMock.testing = "ignore";
+
+    const instance = new Wraker("data:application/javascript,");
+    const request = instance.fetch("/hello", {
+      method: "GET",
+    });
+
+    await expect(request).toTimeOut(100);
   });
 });
