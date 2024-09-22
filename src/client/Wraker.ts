@@ -5,7 +5,7 @@ import {
   type WrakerRequest,
   type WrakerResponse,
 } from "../common";
-import { v4 as uuid } from "uuid";
+import { uuid } from "../lib/uuid";
 
 export type WrakerFetchOptions = Omit<Partial<WrakerRequest>, "path"> & {
   /**
