@@ -32,12 +32,17 @@ export function subpath(path: EventPath, prefix: EventPath): EventPath {
   return path.slice(prefix.length) as EventPath;
 }
 
-export function joinpath(path: EventPath, suffix: EventPath): EventPath {
-  if (path === "/") return suffix;
+export function joinpath(path: EventPath, suffix: string): EventPath {
+  const correctedSuffix: EventPath = suffix.startsWith("/")
+    ? (suffix as EventPath)
+    : `/${suffix}`;
+
+  if (path === "/") return correctedSuffix;
   if (suffix === "/") return path;
 
-  if (path.endsWith("/")) return `${path.slice(0, -1)}${suffix}` as EventPath;
-  return `${path}${suffix}` as EventPath;
+  if (path.endsWith("/"))
+    return `${path.slice(0, -1)}${correctedSuffix}` as EventPath;
+  return `${path}${correctedSuffix}` as EventPath;
 }
 
 export function getMatchingLayers(

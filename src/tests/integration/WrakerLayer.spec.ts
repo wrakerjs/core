@@ -45,6 +45,14 @@ describe("WrakerLayer", () => {
     it("should not keep the trailing slash", () => {
       expect(joinpath("/api", "/")).toBe("/api");
     });
+
+    it("should not add the slash if the path ends with it", () => {
+      expect(joinpath("/api/", "v1" as `/${string}`)).toBe("/api/v1");
+    });
+
+    it("should add the slash if the path does not end with it", () => {
+      expect(joinpath("/api", "v1" as `/${string}`)).toBe("/api/v1");
+    });
   });
 
   describe("getMatchingLayers", () => {
