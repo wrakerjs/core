@@ -1,7 +1,7 @@
 /**
- * Generate a random UUID
+ * Generate a random uuid v4
  *
- * @returns {string} A random UUID
+ * @returns {string} uuid
  *
  * @see https://stackoverflow.com/a/2117523/12828306
  * @copyright CC BY-SA 4.0
