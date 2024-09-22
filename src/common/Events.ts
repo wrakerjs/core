@@ -1,3 +1,6 @@
+/**
+ * Lowercase request method
+ */
 type LowercaseMethod =
   | "checkout"
   | "copy"
@@ -23,43 +26,86 @@ type LowercaseMethod =
   | "unlock"
   | "unsubscribe";
 
+/**
+ * Request method
+ */
 export type Method = LowercaseMethod | Uppercase<LowercaseMethod>;
 
+/**
+ * Request path
+ */
 export type EventPath = `/${string}`;
 
 /**
- * A request body
+ * Request body
  *
  * @link [allowed types](https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types)
  */
 export type EventData = any;
 
 /**
- * A request headers
+ * Request headers
  *
  * @link [allowed types](https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types)
  */
 export type EventHeaders = Record<string, string>;
 
+/**
+ * Common request interface
+ */
 export interface WrakerRequest<T = EventData> {
+  /**
+   * Request path
+   */
   path: EventPath;
+
+  /**
+   * Request method
+   */
   method: Method;
+
+  /**
+   * Request headers
+   */
   headers: EventHeaders;
+
+  /**
+   * Request body
+   */
   body: T;
 }
 
+/**
+ * Response base
+ */
 export interface WrakerBaseResponse {
+  /**
+   * Response status code
+   */
   status: number;
+
+  /**
+   * Response headers
+   */
   headers: EventHeaders;
 }
 
+/**
+ * Success response interface
+ */
 export type WrakerSuccessResponse<T = EventData> = WrakerBaseResponse & {
   body: T;
 };
 
+/**
+ * Error response interface
+ */
 export type WrakerErrorResponse<T = Error | EventData> = WrakerBaseResponse & {
   error: T;
 };
 
+/**
+ * Common response interface
+ */
 export type WrakerResponse<T = any> = WrakerBaseResponse &
   Partial<WrakerSuccessResponse<T> & WrakerErrorResponse<T>>;

@@ -3,11 +3,23 @@ import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
 export interface WrakerAppOptions extends WrakerRouterOptions {}
 
+/**
+ * Represents the main application class for Wraker, extending the functionality of WrakerRouter.
+ * This class handles the initialization and configuration of the application, including mounting paths,
+ * event listeners, and processing incoming requests.
+ *
+ * @extends WrakerRouter
+ */
 export class WrakerApp extends WrakerRouter {
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();
   private _ready: boolean = false;
 
+  /**
+   * Creates a new WrakerApp instance.
+   *
+   * @param options - The options to configure the WrakerApp instance.
+   */
   constructor(options?: Partial<WrakerAppOptions>) {
     super(options);
     this._mountpath = "/";
@@ -38,11 +50,21 @@ export class WrakerApp extends WrakerRouter {
     );
   }
 
+  /**
+   * Mounts the application at the specified path.
+   *
+   * @param path - The path to mount the application at.
+   */
   public get mountpath(): string | string[] {
     return this._mountpath;
   }
 
-  public on(event: "mount", callback: (parent?: WrakerApp) => void) {
+  /**
+   * Mounts the application at the specified path.
+   *
+   * @param path - The path to mount the application at.
+   */
+  public on(_e: "mount", callback: (parent?: WrakerApp) => void) {
     this._mountCallbacks.push(callback);
   }
 
@@ -51,11 +73,14 @@ export class WrakerApp extends WrakerRouter {
   // public enable(name: string) {}
   // public enabled(name: string) {}
 
-  // public engine(name: string, callback: Function) {
-  //   // TODO: Implement or discard
-  //   throw new Error("Method not implemented.");
-  // }
+  // public engine(name: string, callback: Function) {}
 
+  /**
+   * Starts the application and begins listening for incoming requests.
+   *
+   * @param callback - The callback function to execute when the application is ready.
+   * @returns A promise that resolves when the application is ready.
+   */
   public async listen(callback?: Function): Promise<void> {
     if (this._ready) throw new Error("WrakerApp is already listening");
     this._ready = true;
@@ -63,10 +88,6 @@ export class WrakerApp extends WrakerRouter {
     if (callback) callback();
     else return Promise.resolve();
   }
-  //   public render(name: string, options: any, callback: Function) {
-  //     // TODO: Implement or discard
-  //     throw new Error("Method not implemented.");
-  //   }
-
+  //   public render(name: string, options: any, callback: Function) {}
   //   public set(setting: string, value: any) {}
 }

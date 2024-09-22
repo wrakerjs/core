@@ -14,8 +14,14 @@ export type WrakerFetchOptions = Omit<Partial<WrakerRequest>, "path"> & {
   timeout?: number;
 };
 
+/**
+ * Request ID
+ */
 export type WrakerRequestId = ReturnType<typeof uuid>;
 
+/**
+ * Timeout exception
+ */
 export class TimeoutException extends Error {
   constructor(message: string) {
     super(message);
@@ -46,6 +52,26 @@ interface TypedWorker<Post, Receive> extends Worker {
   addEventListener(type: unknown, listener: unknown, options?: unknown): void;
 }
 
+/**
+ * The `Wraker` class provides an interface for interacting with a web worker.
+ * It allows sending requests to the worker and handling responses asynchronously.
+ *
+ * @example
+ * // Create a new Wraker instance with a worker script URL
+ * const instance = new Wraker(new URL("worker.js", import.meta.url), {
+ *   type: "module",
+ * });
+ *
+ * @example
+ * // Initialize a Wraker instance from an existing Worker
+ * const worker = new Worker("worker.js");
+ * const instance = Wraker.fromWorker(worker);
+ *
+ * @example
+ * // Fetch data from the worker
+ * const data = await instance.fetch("/hello");
+ * console.log(data.body); // Hello, world!
+ */
 export class Wraker {
   private _worker = null as unknown as TypedWorker<
     WrakerRequest,

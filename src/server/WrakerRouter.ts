@@ -1,3 +1,4 @@
+import { type EventPath, type Method, type WrakerRequest } from "../common";
 import {
   EventHandler,
   getMatchingLayers,
@@ -10,21 +11,45 @@ import {
   type WrakerAppNext,
 } from "./Handler";
 import { WrakerAppRequest } from "./WrakerAppRequest";
-import { type EventPath, type Method, type WrakerRequest } from "../common";
 
+/**
+ * Router options
+ */
 export type WrakerRouterOptions = {
+  /**
+   * The base path for the router.
+   */
   path: EventPath;
 };
 
+/**
+ * Router
+ */
 export class WrakerRouter extends EventTarget {
   private _stack: Array<Layer> = new Array();
   private _path: EventPath;
 
+  /**
+   * Creates a new WrakerRouter instance.
+   *
+   * @param options - The options to configure the WrakerRouter instance
+   */
   constructor(options?: Partial<WrakerRouterOptions>) {
     super();
     this._path = options?.path || "/";
   }
 
+  /**
+   * Create a route handler
+   *
+   * @param method - The method to handle.
+   * @param path - The path to handle.
+   * @param all - Whether to match all paths.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   *
+   * @internal
+   */
   private _method(
     method: LayerMethod,
     path: LayerEventPath,
@@ -60,6 +85,14 @@ export class WrakerRouter extends EventTarget {
     return this;
   }
 
+  /**
+   * Create a route handler for all methods
+   *
+   * @param path - The path to handle.
+   * @param all - Whether to match all paths.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   private _all(
     path: LayerEventPath,
     all: boolean,
@@ -68,81 +101,272 @@ export class WrakerRouter extends EventTarget {
     return this._method(METHOD_ALL, path, all, ...handlers);
   }
 
+  /**
+   * Handle all methods
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public all(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._all(path, false, ...handlers);
   }
+
+  /**
+   * Handle the checkout method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public checkout(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("checkout", path, false, ...handlers);
   }
+
+  /**
+   * Handle the copy method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public copy(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("copy", path, false, ...handlers);
   }
+
+  /**
+   * Handle the delete method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public delete(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("delete", path, false, ...handlers);
   }
+
+  /**
+   * Handle the get method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public get(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("get", path, false, ...handlers);
   }
+
+  /**
+   * Handle the head method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public head(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("head", path, false, ...handlers);
   }
+
+  /**
+   * Handle the lock method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public lock(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("lock", path, false, ...handlers);
   }
+
+  /**
+   * Handle the merge method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public merge(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("merge", path, false, ...handlers);
   }
+
+  /**
+   * Handle the mkactivity method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public mkactivity(
     path: EventPath,
     ...handlers: EventHandler[]
   ): WrakerRouter {
     return this._method("mkactivity", path, false, ...handlers);
   }
+
+  /**
+   * Handle the mkcalendar method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public mkcol(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("mkcol", path, false, ...handlers);
   }
+
+  /**
+   * Handle the move method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public move(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("move", path, false, ...handlers);
   }
+
+  /**
+   * Handle the m-search method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public "m-search"(
     path: EventPath,
     ...handlers: EventHandler[]
   ): WrakerRouter {
     return this._method("m-search", path, false, ...handlers);
   }
+
+  /**
+   * Handle the notify method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public notify(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("notify", path, false, ...handlers);
   }
+
+  /**
+   * Handle the options method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public options(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("options", path, false, ...handlers);
   }
+
+  /**
+   * Handle the patch method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public patch(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("patch", path, false, ...handlers);
   }
+
+  /**
+   * Handle the post method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public post(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("post", path, false, ...handlers);
   }
+
+  /**
+   * Handle the purge method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public purge(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("purge", path, false, ...handlers);
   }
+
+  /**
+   * Handle the put method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public put(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("put", path, false, ...handlers);
   }
+
+  /**
+   * Handle the report method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public report(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("report", path, false, ...handlers);
   }
+
+  /**
+   * Handle the search method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public search(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("search", path, false, ...handlers);
   }
+
+  /**
+   * Handle the subscribe method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public subscribe(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("subscribe", path, false, ...handlers);
   }
+
+  /**
+   * Handle the trace method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public trace(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("trace", path, false, ...handlers);
   }
+
+  /**
+   * Handle the unlock method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public unlock(path: EventPath, ...handlers: EventHandler[]): WrakerRouter {
     return this._method("unlock", path, false, ...handlers);
   }
+
+  /**
+   * Handle the unsubscribe method
+   *
+   * @param path - The path to handle.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public unsubscribe(
     path: EventPath,
     ...handlers: EventHandler[]
@@ -151,12 +375,32 @@ export class WrakerRouter extends EventTarget {
   }
 
   //  public  param(name: string, handler: ParamEventHandler): void;
+
+  /**
+   * Set the path for the router
+   *
+   * @param path - The path to set.
+   * @returns The WrakerRouter instance.
+   */
   public route(path: EventPath): WrakerRouter {
     this._path = path;
     return this;
   }
 
+  /**
+   * Use the specified handlers
+   *
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public use(...handlers: EventHandler[]): WrakerRouter;
+  /**
+   * Use the specified handlers for the specified path
+   *
+   * @param path - The path to use the handlers for.
+   * @param handlers - The handlers to use.
+   * @returns The WrakerRouter instance.
+   */
   public use(path: EventPath, ...handlers: EventHandler[]): WrakerRouter;
   public use(arg: EventPath | EventHandler, ...handlers: EventHandler[]) {
     if (typeof arg === "string") {
@@ -174,14 +418,27 @@ export class WrakerRouter extends EventTarget {
     return this;
   }
 
+  /**
+   * The path for the router
+   */
   public get path() {
     return this._path;
   }
 
+  /**
+   * The stack for the router
+   */
   public get stack() {
     return this._stack;
   }
 
+  /**
+   * Process the request
+   *
+   * @param _request - The request object.
+   *
+   * @internal
+   */
   protected async _process(_request: WrakerRequest) {
     const { path } = _request;
 
