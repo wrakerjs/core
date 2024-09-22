@@ -29,7 +29,6 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
   public readonly req: WrakerAppRequest;
 
   private static NEVER_STATUS: -1;
-  private _finished: boolean = false;
   private _headersSent: boolean = false;
   private _status: number = WrakerAppResponse.NEVER_STATUS;
   private readonly headers: WrakerHeaders = new WrakerHeaders();
@@ -48,10 +47,6 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
     this._headersSent = true;
   }
 
-  private _end(): void {
-    this._finished = true;
-  }
-
   public get headersSent(): boolean {
     return this._headersSent;
   }
@@ -62,10 +57,6 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
 
   public set statusCode(value: number) {
     this._status = value;
-  }
-
-  public get finished(): boolean {
-    return this._finished;
   }
 
   public append(field: string, value?: string | string[]): WrakerAppResponse {
@@ -126,8 +117,6 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
     const json = JSON.stringify(body);
     this.headers.set("Content-Type", "application/json");
     this.send(json);
-
-    this._end();
   }
 
   // public jsonp(body: any): void {}
@@ -164,7 +153,7 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
   // public render(view: string, locals?: any, callback?: any): void {}
 
   public send(body?: EventData): void {
-    if (this.finished)
+    if (this.headersSent)
       throw new ResponseAlreadySentException("Reponse was already sent.");
 
     if (this.statusCode === WrakerAppResponse.NEVER_STATUS)
@@ -175,12 +164,10 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
       status: this.statusCode,
       body: body,
     });
-
-    this._end();
   }
 
   public sendError(error?: EventData): void {
-    if (this.finished)
+    if (this.headersSent)
       throw new ResponseAlreadySentException("Reponse was already sent.");
 
     if (this.statusCode === WrakerAppResponse.NEVER_STATUS)
@@ -191,8 +178,6 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
       status: this.statusCode,
       error,
     });
-
-    this._end();
   }
 
   // public sendFile(path: string, options?: any, fn?: any): void {}
