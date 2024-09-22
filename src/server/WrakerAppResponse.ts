@@ -216,7 +216,6 @@ export class WrakerAppResponse implements WrakerAppResponseOptions {
   /**
    * Redirects to the specified URL.
    *
-   * @param status - The status code.
    * @param url - The URL to redirect to.
    */
   public location(url: "back" | string): WrakerAppResponse {
