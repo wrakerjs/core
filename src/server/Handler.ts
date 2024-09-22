@@ -3,28 +3,84 @@ import { WrakerAppRequest } from "./WrakerAppRequest";
 import type { WrakerAppResponse } from "./WrakerAppResponse";
 import { WrakerRouter } from "./WrakerRouter";
 
+/**
+ * Next handler
+ *
+ * @param err - An optional error object.
+ * @returns void
+ */
 export type WrakerAppNext = (err?: any) => void;
 
 export const METHOD_ALL = "all";
+
 export type LayerMethod = Method | typeof METHOD_ALL;
 
 export type LayerEventPath = EventPath;
 
+/**
+ * Layer
+ */
 export type Layer = {
+  /**
+   * Match all paths
+   */
   all: boolean;
+
+  /**
+   * Layer path
+   */
   path: LayerEventPath;
+
+  /**
+   * Layer method
+   */
   method: LayerMethod;
+
+  /**
+   * Layer handler
+   */
   handler: EventHandler;
 };
 
 export type EventHandler = EventHandlerFn | WrakerRouter;
 
+/**
+ * Event handler function
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next handler.
+ */
 export type EventHandlerFn = (
+  /**
+   * The request object.
+   */
   req: WrakerAppRequest,
+
+  /**
+   * The response object.
+   */
   res: WrakerAppResponse,
+
+  /**
+   * The next handler.
+   */
   next: WrakerAppNext
 ) => void;
 
+/**
+ * Remove the prefix from the path
+ *
+ * @param path - The path to remove the prefix from.
+ * @param prefix - The prefix to remove.
+ * @returns The path without the prefix.
+ *
+ * @example
+ * subpath("/api/v1/users", "/not-api"); // "/api/v1/users"
+ * subpath("/api/v1/users", "/api/v1"); // "/users"
+ * subpath("/api/v1/users", "/api/v1/"); // "/users"
+ * subpath("/api/v1/users", "/api/v1/users"); // "/"
+ */
 export function subpath(path: EventPath, prefix: EventPath): EventPath {
   if (prefix === path) return "/";
   if (!new RegExp(`^${prefix}(?:/|$)`).test(path)) return path;
@@ -32,6 +88,19 @@ export function subpath(path: EventPath, prefix: EventPath): EventPath {
   return path.slice(prefix.length) as EventPath;
 }
 
+/**
+ * Join two paths
+ *
+ * @param path - The first path.
+ * @param suffix - The second path.
+ * @returns The joined path.
+ *
+ * @example
+ * joinpath("/api", "/v1"); // "/api/v1"
+ * joinpath("/api/", "/v1"); // "/api/v1"
+ * joinpath("/api", "v1"); // "/apiv1"
+ * joinpath("/api/", "v1"); // "/api/v1"
+ */
 export function joinpath(path: EventPath, suffix: string): EventPath {
   const correctedSuffix: EventPath = suffix.startsWith("/")
     ? (suffix as EventPath)
@@ -45,6 +114,13 @@ export function joinpath(path: EventPath, suffix: string): EventPath {
   return `${path}${correctedSuffix}` as EventPath;
 }
 
+/**
+ * Get all layers that match the request
+ *
+ * @param request - The request object.
+ * @param router - The router object.
+ * @returns All layers that match the request.
+ */
 export function getMatchingLayers(
   request: WrakerRequest,
   router: WrakerRouter
@@ -87,34 +163,3 @@ export function getMatchingLayers(
 
   return layers;
 }
-
-// export type ParamEventHandler = (
-//   req: AppRequest,
-//   res: AppResponse,
-//   next: NextHandler,
-//   param: string | number
-// ) => void;
-
-// export function match(requestPath: EventPath, layer: Layer): boolean {
-//   if (layer.path === PATH_ALL) return true;
-//   if (layer.path === requestPath) return true;
-
-//   if (layer.handler instanceof WrakerRouter) {
-//     return match(requestPath, layer);
-//   }
-
-//   return matchString(requestPath, layer.path);
-// }
-
-// export function matchString(
-//   requestPath: EventPath,
-//   layerPath: EventPath
-// ): boolean {
-//   if (requestPath === layerPath) return true;
-//   if (layerPath.endsWith("*")) {
-//     const prefix = layerPath.slice(0, -1);
-//     return requestPath.startsWith(prefix);
-//   }
-
-//   return false;
-// }

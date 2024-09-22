@@ -12,6 +12,11 @@ import type { WrakerRouter } from "./WrakerRouter";
 
 export interface WrakerAppRequestConstructorOptions extends WrakerRequest {}
 
+/**
+ * Represents the request object for the Wraker application.
+ *
+ * @extends WrakerRequest
+ */
 export class WrakerAppRequest {
   public readonly app: WrakerRouter;
   public readonly baseUrl: string;
@@ -36,6 +41,12 @@ export class WrakerAppRequest {
   // public readonly subdomains: string[];
   // public readonly xhr: boolean;
 
+  /**
+   * Creates a new WrakerAppRequest instance.
+   *
+   * @param app - The WrakerRouter instance.
+   * @param options - The options to configure the WrakerAppRequest instance.
+   */
   constructor(app: WrakerRouter, options: WrakerAppRequestConstructorOptions) {
     this.app = app;
     this.baseUrl = app.path;
@@ -54,6 +65,12 @@ export class WrakerAppRequest {
   // public acceptsEncodings(encodings: string | string[]): string | false {}
   // public acceptsLanguages(langs: string | string[]): string | false {}
 
+  /**
+   * Returns the value of the specified header field.
+   *
+   * @param field - The header field to retrieve.
+   * @returns The value of the specified header field.
+   */
   public get(field: string): string | undefined {
     return this.headers.get(field) as string | undefined;
   }
