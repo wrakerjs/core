@@ -51,28 +51,24 @@ export class WrakerApp extends WrakerRouter {
   }
 
   /**
-   * Mounts the application at the specified path.
-   *
-   * @param path - The path to mount the application at.
+   * Gets the path at which the application is mounted.
    */
   public get mountpath(): string | string[] {
     return this._mountpath;
   }
 
   /**
-   * Mounts the application at the specified path.
-   *
-   * @param path - The path to mount the application at.
+   * Adds a listener for the event.
    */
-  public on(_e: "mount", callback: (parent?: WrakerApp) => void) {
-    this._mountCallbacks.push(callback);
+  public on(event: "mount", callback: (parent?: WrakerApp) => void): void;
+  public on(event: string, callback: (parent?: WrakerApp) => void) {
+    if (event === "mount") this._mountCallbacks.push(callback);
   }
 
   // public disable(name: string) {}
   // public disabled(name: string) {}
   // public enable(name: string) {}
   // public enabled(name: string) {}
-
   // public engine(name: string, callback: Function) {}
 
   /**
@@ -88,6 +84,7 @@ export class WrakerApp extends WrakerRouter {
     if (callback) callback();
     else return Promise.resolve();
   }
+
   //   public render(name: string, options: any, callback: Function) {}
   //   public set(setting: string, value: any) {}
 }

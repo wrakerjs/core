@@ -1,7 +1,7 @@
 /**
  * Lowercase request method
  */
-type LowercaseMethod =
+export type LowercaseMethod =
   | "checkout"
   | "copy"
   | "delete"
@@ -39,14 +39,14 @@ export type EventPath = `/${string}`;
 /**
  * Request body
  *
- * @link [allowed types](https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types)
+ * @see {@link https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types|allowed types}
  */
 export type EventData = any;
 
 /**
  * Request headers
  *
- * @link [allowed types](https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types)
+ * @see {@link https://developer.mozilla.org/docs/Web/API/Web_Workers_API/Structured_clone_algorithm#error_types|allowed types}
  */
 export type EventHeaders = Record<string, string>;
 

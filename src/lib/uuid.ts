@@ -4,7 +4,7 @@
  * @returns {string} uuid
  *
  * @see https://stackoverflow.com/a/2117523/12828306
- * @copyright CC BY-SA 4.0
+ * @license "CC BY-SA 4.0"
  */
 
 export function uuid() {
