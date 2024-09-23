@@ -75,6 +75,8 @@ export type EventHandlerFn = (
  * @param prefix - The prefix to remove.
  * @returns The path without the prefix.
  *
+ * @internal
+ *
  * @example
  * subpath("/api/v1/users", "/not-api"); // "/api/v1/users"
  * subpath("/api/v1/users", "/api/v1"); // "/users"
@@ -94,6 +96,8 @@ export function subpath(path: EventPath, prefix: EventPath): EventPath {
  * @param path - The first path.
  * @param suffix - The second path.
  * @returns The joined path.
+ *
+ * @internal
  *
  * @example
  * joinpath("/api", "/v1"); // "/api/v1"
@@ -120,6 +124,8 @@ export function joinpath(path: EventPath, suffix: string): EventPath {
  * @param request - The request object.
  * @param router - The router object.
  * @returns All layers that match the request.
+ *
+ * @internal
  */
 export function getMatchingLayers(
   request: WrakerRequest,
