@@ -1,0 +1,37 @@
+name: Dispatch new issue
+on:
+  issues:
+    types:
+      - reopened
+      - opened
+  pull_request:
+    types:
+      - opened
+      - reopened
+jobs:
+  issue_assign:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: assign
+        uses: pozil/auto-assign-issue@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          assignees: josselinonduty
+          numOfAssignee: 1
+
+  issue_label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - run: gh issue edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          LABELS: triage
