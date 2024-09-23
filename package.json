@@ -40,7 +40,7 @@
   "author": "josselinonduty <contact@josselinonduty.fr>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/josselinonduty/wraker.git"
+    "url": "git+https://github.com/wrakerjs/core.git"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",

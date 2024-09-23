@@ -1,26 +1,26 @@
 # Wraker
 
-[![josselinonduty - wraker](https://img.shields.io/static/v1?label=josselinonduty&message=wraker&color=blueviolet&logo=github)](https://github.com/josselinonduty/wraker "Go to GitHub repo")
-[![release](https://img.shields.io/github/release/josselinonduty/wraker?include_prereleases=&sort=semver&color=teal)](https://github.com/josselinonduty/wraker/releases/)
-[![license](https://img.shields.io/badge/License-MIT-orange?label="license")](https://github.com/josselinonduty/wraker/blob/main/LICENSE)
+[![wraker](https://img.shields.io/static/v1?label=wrakerjs&message=core&color=blueviolet&logo=github)](https://github.com/wrakerjs/core "Go to GitHub repo")
+[![release](https://img.shields.io/github/release/wrakerjs/core?include_prereleases=&sort=semver&color=teal)](https://github.com/wrakerjs/core/releases/)
+[![license](https://img.shields.io/badge/License-MIT-orange?label="license")](https://github.com/wrakerjs/core/blob/main/LICENSE)
 <br />
-[![node](https://img.shields.io/badge/node-%5E18.0.0-blue?logo=node.js)](https://www.npmjs.com/package/wraker)
-[![size](https://img.shields.io/bundlephobia/minzip/wraker?color=blue&label=size)](https://bundlephobia.com/result?p=wraker)
-[![language](https://img.shields.io/github/languages/top/josselinonduty/wraker?logo=typescript)](https://typescriptlang.org)
+[![node](https://img.shields.io/badge/node-%5E18.0.0-blue?logo=node.js)](https://www.npmjs.com/package/@wraker/core)
+[![size](https://img.shields.io/bundlephobia/minzip/@wraker/core?color=blue&label=size)](https://bundlephobia.com/result?p=@wraker/core)
+[![language](https://img.shields.io/github/languages/top/wrakerjs/core?logo=typescript)](https://typescriptlang.org)
 
-![workflow - wraker](https://img.shields.io/github/actions/workflow/status/josselinonduty/wraker/test.yml?label="pipeline")
-[![codecov](https://codecov.io/github/josselinonduty/wraker/graph/badge.svg?token=A872AFRRJ0)](https://codecov.io/github/josselinonduty/wraker)
-[![issues](https://img.shields.io/github/issues/josselinonduty/wraker)](https://github.com/josselinonduty/wraker/issues)
-[![contrib](https://img.shields.io/github/contributors/josselinonduty/wraker?color=teal)](https://github.com/josselinonduty/wraker)
-[![downloads](https://img.shields.io/npm/dm/wraker?color=teal)](https://www.npmjs.com/package/wraker)
-[![stars](https://img.shields.io/github/stars/josselinonduty/wraker?style=social)](https://github.com/josselinonduty/wraker)
+![workflow - wraker](https://img.shields.io/github/actions/workflow/status/wrakerjs/core/test.yml?label="pipeline")
+[![codecov](https://codecov.io/github/wrakerjs/core/graph/badge.svg?token=A872AFRRJ0)](https://codecov.io/github/wrakerjs/core)
+[![issues](https://img.shields.io/github/issues/wrakerjs/core)](https://github.com/wrakerjs/core/issues)
+[![contrib](https://img.shields.io/github/contributors/wrakerjs/core?color=teal)](https://github.com/wrakerjs/core)
+[![downloads](https://img.shields.io/npm/dm/wraker?color=teal)](https://www.npmjs.com/package/@wraker/core)
+[![stars](https://img.shields.io/github/stars/wrakerjs/core?style=social)](https://github.com/wrakerjs/core)
 
 Wraker is a wrapper for [web workers](https://developer.mozilla.org/docs/Web/API/Worker/Worker).
 It makes it easier to manage the communication between the main thread and the worker thread through a simple `express` like API.
 
 ## Documentation
 
-- [API Reference](https://josselinonduty.github.io/wraker/)
+- [API Reference](https://wrakerjs.github.io/core/)
 - [MDN Web Workers](https://developer.mozilla.org/docs/Web/API/Worker/Worker)
 
 ## Getting started
@@ -30,7 +30,7 @@ It makes it easier to manage the communication between the main thread and the w
 Create a new file `worker.js`:
 
 ```js
-import { WrakerApp } from "https://cdn.jsdelivr.net/npm/wraker/+esm";
+import { WrakerApp } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
 
 const app = new WrakerApp();
 
@@ -44,7 +44,7 @@ app.listen();
 Then, create a new file `main.js`:
 
 ```js
-import { Wraker } from "https://cdn.jsdelivr.net/npm/wraker/+esm";
+import { Wraker } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
 
 const worker = new Wraker("worker.js", {
   type: "module",
