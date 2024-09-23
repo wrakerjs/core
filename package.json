@@ -49,7 +49,7 @@
     "@types/node": "^22.5.5",
     "@vitest/browser": "^2.0.4",
     "@vitest/coverage-istanbul": "^2.0.5",
-    "esbuild": "^0.23.0",
+    "esbuild": "^0.24.0",
     "playwright": "^1.46.0",
     "rollup": "^4.19.0",
     "rollup-plugin-dts": "^6.1.1",
