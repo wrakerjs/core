@@ -1,5 +1,7 @@
 import type { WrakerAppBase } from "./WrakerAppBase";
 
+export * from "./handler";
+export * from "./runtime";
 export * from "./WrakerAppBase";
 export * from "./WrakerAppPlugin";
 export * from "./WrakerAppRequest";

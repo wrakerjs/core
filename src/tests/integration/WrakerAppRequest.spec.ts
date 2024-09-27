@@ -5,7 +5,7 @@ import { WrakerAppBase, WrakerAppRequest, WrakerAppResponse } from "../..";
 
 describe("WrakerAppRequest", () => {
   it("should initialize properly", () => {
-    const app = new WrakerApp();
+    const app = new WrakerAppBase();
 
     const request = new WrakerAppRequest(app, {
       body: "body",
@@ -27,7 +27,7 @@ describe("WrakerAppRequest", () => {
   });
 
   it("should get header", () => {
-    const app = new WrakerApp();
+    const app = new WrakerAppBase();
 
     const request = new WrakerAppRequest(app, {
       path: "/any",
