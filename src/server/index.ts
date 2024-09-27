@@ -1,7 +1,7 @@
-import type { WrakerApp } from "./WrakerApp";
+import type { WrakerAppBase } from "./WrakerAppBase";
 
-export * from "./Handler";
-export * from "./WrakerApp";
+export * from "./WrakerAppBase";
+export * from "./WrakerAppPlugin";
 export * from "./WrakerAppRequest";
 export * from "./WrakerAppResponse";
 export * from "./WrakerRouter";
@@ -9,7 +9,7 @@ export * from "./WrakerRouter";
 declare module "." {
   interface WrakerRouterEventMap {
     "wraker-router:mount": CustomEvent<{
-      app: WrakerApp;
+      app: WrakerAppBase;
     }>;
     "wraker-router:mounted": CustomEvent<{
       handler: WrakerRouter;

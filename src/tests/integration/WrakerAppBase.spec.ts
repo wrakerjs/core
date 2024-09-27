@@ -1,22 +1,22 @@
-import { it, describe, expect, vitest } from "vitest";
+import { describe, expect, it, vitest } from "vitest";
 import "../utils";
 
-import { WrakerRouter, WrakerApp } from "../..";
+import { WrakerAppBase, WrakerRouter } from "../..";
 
 describe("WrakerApp", () => {
   it("should be defined", async () => {
-    const instance = new WrakerApp();
+    const instance = new WrakerAppBase();
     expect(instance).toBeDefined();
   });
 
   it("should have a mountpath", async () => {
-    const instance = new WrakerApp();
+    const instance = new WrakerAppBase();
     expect(instance.mountpath).toBeDefined();
   });
 
   it("should receive mount event", async () => {
-    const instance = new WrakerApp();
-    const api = new WrakerApp();
+    const instance = new WrakerAppBase();
+    const api = new WrakerAppBase();
 
     const promise = new Promise((resolve) => {
       instance.on("mount", () => resolve(true));
@@ -28,7 +28,7 @@ describe("WrakerApp", () => {
   });
 
   it("should not receive mount event", async () => {
-    const instance = new WrakerApp();
+    const instance = new WrakerAppBase();
     const api = new WrakerRouter();
 
     const promise = new Promise((resolve) => {
@@ -41,7 +41,7 @@ describe("WrakerApp", () => {
   });
 
   it("should execute listening callback", async () => {
-    const instance = new WrakerApp();
+    const instance = new WrakerAppBase();
 
     const promise = new Promise<boolean>((resolve) => {
       instance.listen(() => {
@@ -53,7 +53,7 @@ describe("WrakerApp", () => {
   });
 
   it("should execute listening callback (promise chaining)", async () => {
-    const instance = new WrakerApp();
+    const instance = new WrakerAppBase();
 
     const promise = new Promise<boolean>((resolve) => {
       instance.listen().then(() => {
@@ -65,14 +65,14 @@ describe("WrakerApp", () => {
   });
 
   it("should throw when listening twice", async () => {
-    const instance = new WrakerApp();
+    const instance = new WrakerAppBase();
 
     instance.listen();
     await expect(instance.listen()).rejects.toThrow();
   });
 
   it("should process event", async () => {
-    const app = new WrakerApp();
+    const app = new WrakerAppBase();
     const handler = vitest.fn();
 
     app.get("/something", handler);
@@ -97,7 +97,7 @@ describe("WrakerApp", () => {
   });
 
   it("should not process if event is malformed", async () => {
-    const app = new WrakerApp();
+    const app = new WrakerAppBase();
     const handler = vitest.fn();
 
     app.get("/something", handler);

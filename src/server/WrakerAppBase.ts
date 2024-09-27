@@ -4,29 +4,30 @@ import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 export interface WrakerAppOptions extends WrakerRouterOptions {}
 
 /**
- * Represents the main application class for Wraker, extending the functionality of WrakerRouter.
+ * Represents the base application class for Wraker, extending the functionality of WrakerRouter.
  * This class handles the initialization and configuration of the application, including mounting paths,
  * event listeners, and processing incoming requests.
  *
  * @extends WrakerRouter
  */
-export class WrakerApp extends WrakerRouter {
+export class WrakerAppBase extends WrakerRouter {
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();
   private _ready: boolean = false;
 
   /**
-   * Creates a new WrakerApp instance.
+   * Creates a new WrakerAppBaseinstance.
    *
-   * @param options - The options to configure the WrakerApp instance.
+   * @param options - The options to configure the WrakerAppBaseinstance.
    */
   constructor(options?: Partial<WrakerAppOptions>) {
     super(options);
-    this._mountpath = "/";
 
+    this._mountpath = "/";
     this.addEventListener("wraker-router:mounted", (event) => {
       this._mountCallbacks.forEach((callback) => {
-        if (event.detail.handler instanceof WrakerApp) callback(event.detail);
+        if (event.detail.handler instanceof WrakerAppBase)
+          callback(event.detail);
       });
     });
 
@@ -60,8 +61,8 @@ export class WrakerApp extends WrakerRouter {
   /**
    * Adds a listener for the event.
    */
-  public on(event: "mount", callback: (parent?: WrakerApp) => void): void;
-  public on(event: string, callback: (parent?: WrakerApp) => void) {
+  public on(event: "mount", callback: (parent?: WrakerAppBase) => void): void;
+  public on(event: string, callback: (parent?: WrakerAppBase) => void) {
     if (event === "mount") this._mountCallbacks.push(callback);
   }
 
@@ -78,7 +79,7 @@ export class WrakerApp extends WrakerRouter {
    * @returns A promise that resolves when the application is ready.
    */
   public async listen(callback?: Function): Promise<void> {
-    if (this._ready) throw new Error("WrakerApp is already listening");
+    if (this._ready) throw new Error("WrakerAppBaseis already listening");
     this._ready = true;
 
     if (callback) callback();

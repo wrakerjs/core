@@ -1,14 +1,14 @@
-import { describe, expect, it, beforeEach, chai } from "vitest";
-
-const { AssertionError } = chai;
+import { beforeEach, chai, describe, expect, it } from "vitest";
 import {
   ResponseAlreadySentException,
-  WrakerApp,
+  WrakerAppBase,
   WrakerAppRequest,
   WrakerAppResponse,
   WrakerHeaders,
   type WrakerResponse,
 } from "../..";
+
+const { AssertionError } = chai;
 
 class MockWrakerAppResponse extends WrakerAppResponse {
   constructor(req: WrakerAppRequest) {
@@ -25,11 +25,11 @@ class MockWrakerAppResponse extends WrakerAppResponse {
 }
 
 describe("WrakerAppResponse", () => {
-  let app: WrakerApp;
+  let app: WrakerAppBase;
   let request: WrakerAppRequest;
 
   beforeEach(() => {
-    app = new WrakerApp();
+    app = new WrakerAppBase();
 
     request = new WrakerAppRequest(app, {
       body: "body",
