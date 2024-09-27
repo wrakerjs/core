@@ -1,5 +1,10 @@
 import { type WrakerRequest } from "../common";
-import type { WrakerAppPlugin } from "./WrakerAppPlugin";
+import type {
+  WrakerAppPlugin,
+  WrakerAppPluginHook,
+  WrakerAppPluginHookArgs,
+  WrakerAppPluginHookKey,
+} from "./WrakerAppPlugin";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
 export interface WrakerAppOptions extends WrakerRouterOptions {
@@ -16,6 +21,7 @@ export interface WrakerAppOptions extends WrakerRouterOptions {
 export class WrakerAppBase extends WrakerRouter {
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();
+  private _plugins: WrakerAppPlugin<any, any>[];
   private _ready: boolean = false;
 
   /**
@@ -25,8 +31,11 @@ export class WrakerAppBase extends WrakerRouter {
    */
   constructor(options?: Partial<WrakerAppOptions>) {
     super(options);
-
     this._mountpath = "/";
+    this._plugins = options?.plugins || [];
+
+    this._lifecycleEmit("init");
+
     this.addEventListener("wraker-router:mounted", (event) => {
       this._mountCallbacks.forEach((callback) => {
         if (event.detail.handler instanceof WrakerAppBase)
@@ -37,6 +46,8 @@ export class WrakerAppBase extends WrakerRouter {
     globalThis.addEventListener(
       "message",
       (event: MessageEvent<Partial<WrakerRequest>>) => {
+        this._lifecycleEmit("onBeforeMessageHandled", event);
+
         const data = event.data;
         if (!data) return;
 
@@ -52,6 +63,27 @@ export class WrakerAppBase extends WrakerRouter {
         });
       }
     );
+  }
+
+  /**
+   * Executes the lifecycle hook for the specified event.
+   */
+  private _lifecycleEmit<K extends WrakerAppPluginHookKey>(
+    hook: K,
+    ...args: WrakerAppPluginHookArgs<K>
+  ) {
+    const hooks = this._plugins.filter((plugin) => !!plugin[hook]);
+
+    hooks.forEach((plugin) => {
+      const hookFn = plugin[hook] as WrakerAppPluginHook<any, any, any>;
+      if (hookFn) {
+        if (args.length > 0) {
+          hookFn(this, {}, ...args);
+        } else {
+          hookFn(this, {});
+        }
+      }
+    });
   }
 
   /**

@@ -3,7 +3,6 @@ import { WrakerAppBase, type WrakerAppOptions } from "./WrakerAppBase";
 import type {
   WrakerAppPlugin,
   WrakerAppPluginFactory,
-  WrakerAppPluginHook,
 } from "./WrakerAppPlugin";
 
 type ExtractExtension<Extensions> = Extensions extends WrakerAppPlugin<
@@ -24,16 +23,12 @@ export function defineWrakerApp<T extends WrakerAppPlugin<any, any>[] = []>(
 }
 
 export function defineWrakerAppPlugin<Extension = {}, Options = {}>(
-  parameters: Omit<WrakerAppPlugin<Extension, Options>, "init" | "destroy"> & {
-    init: WrakerAppPluginHook<Extension, Options>;
-    destroy?: WrakerAppPluginHook<Extension, Options>;
-  }
+  parameters: Omit<WrakerAppPlugin<Extension, Options>, "options">
 ): WrakerAppPluginFactory<Extension, Options> {
   return function (options) {
     return {
       ...parameters,
-      init: (app) => parameters.init(app, options),
-      destroy: (app) => parameters.destroy?.(app, options),
+      options,
     };
   };
 }
