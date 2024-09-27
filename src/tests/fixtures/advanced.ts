@@ -1,5 +1,5 @@
-import { WrakerApp } from "../../server";
-const app = new WrakerApp();
+import { defineWrakerApp } from "../../server";
+const app = defineWrakerApp();
 
 const items = new Map<string | number, any>();
 
@@ -47,5 +47,5 @@ app.post("/items", (req, res) => {
 });
 
 app.listen(() => {
-  console.log("WrakerApp is running.");
+  console.log("WrakerAppBaseis running.");
 });
