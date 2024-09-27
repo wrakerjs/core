@@ -1,7 +1,7 @@
-import { describe, expect, it, vitest } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import "../utils";
 
-import { WrakerAppBase, WrakerRouter } from "../..";
+import { defineWrakerAppPlugin, WrakerAppBase, WrakerRouter } from "../..";
 
 describe("WrakerApp", () => {
   it("should be defined", async () => {
@@ -73,7 +73,7 @@ describe("WrakerApp", () => {
 
   it("should process event", async () => {
     const app = new WrakerAppBase();
-    const handler = vitest.fn();
+    const handler = vi.fn();
 
     app.get("/something", handler);
 
@@ -98,7 +98,7 @@ describe("WrakerApp", () => {
 
   it("should not process if event is malformed", async () => {
     const app = new WrakerAppBase();
-    const handler = vitest.fn();
+    const handler = vi.fn();
 
     app.get("/something", handler);
 
@@ -145,5 +145,49 @@ describe("WrakerApp", () => {
 
     await expect(promise).toTimeOut(100);
     expect(handler).toHaveBeenCalledTimes(0);
+  });
+
+  it("should emit lifecycle hooks", async () => {
+    const init = vi.fn();
+    const onBeforeMessageHandled = vi.fn();
+    const plugin = defineWrakerAppPlugin({
+      name: "test",
+      init,
+      onBeforeMessageHandled,
+    });
+
+    new WrakerAppBase({ plugins: [plugin()] });
+
+    expect(init).toHaveBeenCalledTimes(1);
+
+    const event = new MessageEvent("message", {
+      data: {
+        method: "get",
+        path: "/something",
+      },
+    });
+
+    globalThis.dispatchEvent(event);
+
+    expect(onBeforeMessageHandled).toHaveBeenCalledTimes(1);
+  });
+
+  it("should handle multiple plugins", async () => {
+    const init1 = vi.fn();
+    const plugin1 = defineWrakerAppPlugin({
+      name: "plugin1",
+      init: init1,
+    });
+
+    const init2 = vi.fn();
+    const plugin2 = defineWrakerAppPlugin({
+      name: "plugin2",
+      init: init2,
+    });
+
+    new WrakerAppBase({ plugins: [plugin1(), plugin2()] });
+
+    expect(init1).toHaveBeenCalledTimes(1);
+    expect(init2).toHaveBeenCalledTimes(1);
   });
 });

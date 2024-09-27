@@ -76,12 +76,10 @@ export class WrakerAppBase extends WrakerRouter {
 
     hooks.forEach((plugin) => {
       const hookFn = plugin[hook] as WrakerAppPluginHook<any, any, any>;
-      if (hookFn) {
-        if (args.length > 0) {
-          hookFn(this, {}, ...args);
-        } else {
-          hookFn(this, {});
-        }
+      if (args.length > 0) {
+        hookFn(this, {}, ...args);
+      } else {
+        hookFn(this, {});
       }
     });
   }
