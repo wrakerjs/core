@@ -18,7 +18,7 @@ type ExtendedWrakerApp<T extends WrakerAppPlugin<any, any>[] = []> =
     (T extends [] ? {} : UnionToIntersection<ExtractExtension<T[number]>>);
 
 export function defineWrakerApp<T extends WrakerAppPlugin<any, any>[] = []>(
-  options?: Partial<WrakerAppOptions> & { plugins?: T }
+  options?: Partial<WrakerAppOptions>
 ): ExtendedWrakerApp<T> {
   return new WrakerAppBase(options) as ExtendedWrakerApp<T>;
 }

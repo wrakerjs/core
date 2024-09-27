@@ -1,7 +1,10 @@
 import { type WrakerRequest } from "../common";
+import type { WrakerAppPlugin } from "./WrakerAppPlugin";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
-export interface WrakerAppOptions extends WrakerRouterOptions {}
+export interface WrakerAppOptions extends WrakerRouterOptions {
+  plugins?: WrakerAppPlugin<any, any>[];
+}
 
 /**
  * Represents the base application class for Wraker, extending the functionality of WrakerRouter.
@@ -63,7 +66,7 @@ export class WrakerAppBase extends WrakerRouter {
    */
   public on(event: "mount", callback: (parent?: WrakerAppBase) => void): void;
   public on(event: string, callback: (parent?: WrakerAppBase) => void) {
-    if (event === "mount") this._mountCallbacks.push(callback);
+    this._mountCallbacks.push(callback);
   }
 
   // public disable(name: string) {}
