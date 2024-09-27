@@ -1,4 +1,4 @@
-import { it, describe, expect, vitest } from "vitest";
+import { describe, expect, it } from "vitest";
 import { WrakerHeaders } from "../..";
 
 describe("WrakerHeaders", () => {
