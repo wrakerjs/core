@@ -1,10 +1,18 @@
-import { type WrakerRequest } from "../common";
+import type { WrakerRequest } from "../common";
+import type {
+  WrakerAppPlugin,
+  WrakerAppPluginHook,
+  WrakerAppPluginHookArgs,
+  WrakerAppPluginHookKey,
+} from "./WrakerAppPlugin";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
-export interface WrakerAppOptions extends WrakerRouterOptions {}
+export interface WrakerAppOptions extends WrakerRouterOptions {
+  plugins?: WrakerAppPlugin<any, any>[];
+}
 
 /**
- * Represents the main application class for Wraker, extending the functionality of WrakerRouter.
+ * Represents the base application class for Wraker, extending the functionality of WrakerRouter.
  * This class handles the initialization and configuration of the application, including mounting paths,
  * event listeners, and processing incoming requests.
  *
@@ -13,16 +21,20 @@ export interface WrakerAppOptions extends WrakerRouterOptions {}
 export class WrakerApp extends WrakerRouter {
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();
+  private _plugins: WrakerAppPlugin<any, any>[];
   private _ready: boolean = false;
 
   /**
-   * Creates a new WrakerApp instance.
+   * Creates a new WrakerAppBaseinstance.
    *
-   * @param options - The options to configure the WrakerApp instance.
+   * @param options - The options to configure the WrakerAppBaseinstance.
    */
   constructor(options?: Partial<WrakerAppOptions>) {
     super(options);
     this._mountpath = "/";
+    this._plugins = options?.plugins || [];
+
+    this._lifecycleEmit("init");
 
     this.addEventListener("wraker-router:mounted", (event) => {
       this._mountCallbacks.forEach((callback) => {
@@ -30,24 +42,48 @@ export class WrakerApp extends WrakerRouter {
       });
     });
 
-    globalThis.addEventListener(
-      "message",
-      (event: MessageEvent<Partial<WrakerRequest>>) => {
-        const data = event.data;
-        if (!data) return;
+    globalThis.addEventListener("message", (event: MessageEvent<Partial<WrakerRequest>>) => {
+      if (!this._ready) return;
+      this._lifecycleEmit("onBeforeMessageHandled", event);
+    });
 
-        const headers = data.headers;
+    globalThis.addEventListener("message", (event: MessageEvent<Partial<WrakerRequest>>) => {
+      if (!this._ready) return;
 
-        if (!data.method || !data.path) return;
+      const data = event.data;
+      if (!data) return;
 
-        this._process({
-          method: data.method,
-          path: data.path,
-          headers: headers || {},
-          body: data.body,
-        });
+      if (!data.method || !data.path) return;
+      const headers = data.headers;
+
+      this._process({
+        method: data.method,
+        path: data.path,
+        headers: headers || {},
+        body: data.body,
+      });
+    });
+  }
+
+  /**
+   * Executes the lifecycle hook for the specified event.
+   *
+   * @param hook - The lifecycle hook to execute.
+   * @param args - The arguments to pass to the hook.
+   */
+  private _lifecycleEmit<K extends WrakerAppPluginHookKey>(
+    hook: K,
+    ...args: WrakerAppPluginHookArgs<K>
+  ) {
+    const plugins = this._plugins.filter((plugin) => plugin[hook]);
+    plugins.forEach((plugin) => {
+      const hookFn = plugin[hook] as WrakerAppPluginHook<any, any, any>;
+      if (args.length > 0) {
+        hookFn(this, plugin.options, ...args);
+      } else {
+        hookFn(this, plugin.options);
       }
-    );
+    });
   }
 
   /**
@@ -62,7 +98,7 @@ export class WrakerApp extends WrakerRouter {
    */
   public on(event: "mount", callback: (parent?: WrakerApp) => void): void;
   public on(event: string, callback: (parent?: WrakerApp) => void) {
-    if (event === "mount") this._mountCallbacks.push(callback);
+    this._mountCallbacks.push(callback);
   }
 
   // public disable(name: string) {}

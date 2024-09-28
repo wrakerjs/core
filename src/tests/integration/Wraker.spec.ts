@@ -1,4 +1,4 @@
-import { it, describe, expect, vi, afterEach, beforeEach, chai } from "vitest";
+import { afterEach, beforeEach, chai, describe, expect, it, vi } from "vitest";
 import "../utils";
 const { AssertionError } = chai;
 

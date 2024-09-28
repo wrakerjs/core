@@ -9,7 +9,7 @@ import {
   type LayerEventPath,
   type LayerMethod,
   type WrakerAppNext,
-} from "./Handler";
+} from "./handler";
 import { WrakerAppRequest } from "./WrakerAppRequest";
 
 /**
