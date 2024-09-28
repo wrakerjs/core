@@ -2,15 +2,15 @@ import { describe, expect, it, vi } from "vitest";
 import {
   defineWrakerApp,
   defineWrakerAppPlugin,
-  WrakerAppBase,
+  WrakerApp,
 } from "../../server";
 
 describe("defineWrakerApp", () => {
-  it("should return a new instance of WrakerAppBase", () => {
+  it("should return a new instance of WrakerApp", () => {
     const instance = defineWrakerApp();
 
     expect(instance).toBeDefined();
-    expect(instance).toBeInstanceOf(WrakerAppBase);
+    expect(instance).toBeInstanceOf(WrakerApp);
   });
 });
 

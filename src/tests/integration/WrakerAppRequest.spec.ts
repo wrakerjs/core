@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import "../utils";
 
-import { WrakerAppBase, WrakerAppRequest, WrakerAppResponse } from "../..";
+import { WrakerApp, WrakerAppRequest, WrakerAppResponse } from "../..";
 
 describe("WrakerAppRequest", () => {
   it("should initialize properly", () => {
-    const app = new WrakerAppBase();
+    const app = new WrakerApp();
 
     const request = new WrakerAppRequest(app, {
       body: "body",
@@ -27,7 +27,7 @@ describe("WrakerAppRequest", () => {
   });
 
   it("should get header", () => {
-    const app = new WrakerAppBase();
+    const app = new WrakerApp();
 
     const request = new WrakerAppRequest(app, {
       path: "/any",

@@ -30,7 +30,7 @@ It makes it easier to manage the communication between the main thread and the w
 Create a new file `worker.js`:
 
 ```js
-import { WrakerAppBase } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
+import { WrakerApp } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
 
 const app = new WrakerApp();
 
@@ -91,7 +91,7 @@ You can take advantage of this feature to create a worker with Wraker:
 
 ```js
 // worker.js
-import { WrakerAppBase } from "wraker";
+import { WrakerApp } from "wraker";
 ```
 
 ```js

@@ -1,13 +1,13 @@
 import type { WrakerRequest } from "../common";
 import type { Exact, ExtractKeysByType, ExtractTypeByKey } from "../lib";
-import type { WrakerAppBase } from "./WrakerAppBase";
+import type { WrakerApp } from "./WrakerApp";
 
 export type WrakerAppPluginHook<
   Extension = {},
   Options = {},
   Args extends any[] = []
 > = (
-  app: WrakerAppBase & Extension,
+  app: WrakerApp & Extension,
   options?: Options,
   ...args: Args
 ) => boolean | void;

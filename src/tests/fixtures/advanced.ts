@@ -47,5 +47,5 @@ app.post("/items", (req, res) => {
 });
 
 app.listen(() => {
-  console.log("WrakerAppBaseis running.");
+  console.log("WrakerApp is running.");
 });

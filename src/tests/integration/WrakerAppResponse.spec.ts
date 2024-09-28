@@ -1,7 +1,7 @@
 import { beforeEach, chai, describe, expect, it } from "vitest";
 import {
   ResponseAlreadySentException,
-  WrakerAppBase,
+  WrakerApp,
   WrakerAppRequest,
   WrakerAppResponse,
   WrakerHeaders,
@@ -25,11 +25,11 @@ class MockWrakerAppResponse extends WrakerAppResponse {
 }
 
 describe("WrakerAppResponse", () => {
-  let app: WrakerAppBase;
+  let app: WrakerApp;
   let request: WrakerAppRequest;
 
   beforeEach(() => {
-    app = new WrakerAppBase();
+    app = new WrakerApp();
 
     request = new WrakerAppRequest(app, {
       body: "body",

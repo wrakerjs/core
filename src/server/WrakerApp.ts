@@ -1,4 +1,4 @@
-import { type WrakerRequest } from "../common";
+import type { WrakerRequest } from "../common";
 import type {
   WrakerAppPlugin,
   WrakerAppPluginHook,
@@ -18,7 +18,7 @@ export interface WrakerAppOptions extends WrakerRouterOptions {
  *
  * @extends WrakerRouter
  */
-export class WrakerAppBase extends WrakerRouter {
+export class WrakerApp extends WrakerRouter {
   private _mountpath: string | string[];
   private _mountCallbacks: Array<Function> = new Array();
   private _plugins: WrakerAppPlugin<any, any>[];
@@ -38,48 +38,50 @@ export class WrakerAppBase extends WrakerRouter {
 
     this.addEventListener("wraker-router:mounted", (event) => {
       this._mountCallbacks.forEach((callback) => {
-        if (event.detail.handler instanceof WrakerAppBase)
-          callback(event.detail);
+        if (event.detail.handler instanceof WrakerApp) callback(event.detail);
       });
     });
 
-    globalThis.addEventListener(
-      "message",
-      (event: MessageEvent<Partial<WrakerRequest>>) => {
-        this._lifecycleEmit("onBeforeMessageHandled", event);
+    globalThis.addEventListener("message", (event: MessageEvent<Partial<WrakerRequest>>) => {
+      if (!this._ready) return;
+      this._lifecycleEmit("onBeforeMessageHandled", event);
+    });
 
-        const data = event.data;
-        if (!data) return;
+    globalThis.addEventListener("message", (event: MessageEvent<Partial<WrakerRequest>>) => {
+      if (!this._ready) return;
 
-        const headers = data.headers;
+      const data = event.data;
+      if (!data) return;
 
-        if (!data.method || !data.path) return;
+      if (!data.method || !data.path) return;
+      const headers = data.headers;
 
-        this._process({
-          method: data.method,
-          path: data.path,
-          headers: headers || {},
-          body: data.body,
-        });
-      }
-    );
+      this._process({
+        method: data.method,
+        path: data.path,
+        headers: headers || {},
+        body: data.body,
+      });
+    });
   }
 
   /**
    * Executes the lifecycle hook for the specified event.
+   *
+   * @param hook - The lifecycle hook to execute.
+   * @param args - The arguments to pass to the hook.
    */
   private _lifecycleEmit<K extends WrakerAppPluginHookKey>(
     hook: K,
     ...args: WrakerAppPluginHookArgs<K>
   ) {
-    const hooks = this._plugins.filter((plugin) => !!plugin[hook]);
-
-    hooks.forEach((plugin) => {
+    const plugins = this._plugins.filter((plugin) => plugin[hook]);
+    plugins.forEach((plugin) => {
       const hookFn = plugin[hook] as WrakerAppPluginHook<any, any, any>;
       if (args.length > 0) {
-        hookFn(this, {}, ...args);
+        hookFn(this, plugin.options, ...args);
       } else {
-        hookFn(this, {});
+        hookFn(this, plugin.options);
       }
     });
   }
@@ -94,8 +96,8 @@ export class WrakerAppBase extends WrakerRouter {
   /**
    * Adds a listener for the event.
    */
-  public on(event: "mount", callback: (parent?: WrakerAppBase) => void): void;
-  public on(event: string, callback: (parent?: WrakerAppBase) => void) {
+  public on(event: "mount", callback: (parent?: WrakerApp) => void): void;
+  public on(event: string, callback: (parent?: WrakerApp) => void) {
     this._mountCallbacks.push(callback);
   }
 
@@ -112,7 +114,7 @@ export class WrakerAppBase extends WrakerRouter {
    * @returns A promise that resolves when the application is ready.
    */
   public async listen(callback?: Function): Promise<void> {
-    if (this._ready) throw new Error("WrakerAppBaseis already listening");
+    if (this._ready) throw new Error("WrakerApp is already listening");
     this._ready = true;
 
     if (callback) callback();
