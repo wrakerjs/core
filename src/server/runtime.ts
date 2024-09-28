@@ -12,13 +12,14 @@ type ExtractExtension<Extensions> = Extensions extends WrakerAppPlugin<
   ? Extensions
   : never;
 
-type ExtendedWrakerApp<T extends WrakerAppPlugin<any, any>[] = []> =
-  WrakerApp &
-    (T extends [] ? {} : UnionToIntersection<ExtractExtension<T[number]>>);
+type ExtendedWrakerApp<T extends WrakerAppPlugin<any, any>[]> = WrakerApp &
+  UnionToIntersection<ExtractExtension<T[number]>>;
 
 export function defineWrakerApp<T extends WrakerAppPlugin<any, any>[] = []>(
-  options?: Partial<WrakerAppOptions>
-): ExtendedWrakerApp<T> {
+  options?: Omit<Partial<WrakerAppOptions>, "plugins"> & {
+    plugins?: T;
+  }
+) {
   return new WrakerApp(options) as ExtendedWrakerApp<T>;
 }
 
