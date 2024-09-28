@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   defineWrakerApp,
   defineWrakerAppPlugin,
@@ -16,17 +16,28 @@ describe("defineWrakerApp", () => {
 
 describe("defineWrakerAppPlugin", () => {
   it("should return a new instance of WrakerAppPluginFactory", () => {
-    const factory = defineWrakerAppPlugin({
+    const factory = defineWrakerAppPlugin<
+      { test: number },
+      { initial: number }
+    >({
       name: "test",
-      description: "Test plugin",
       version: "1.0.0",
-      init: vi.fn(),
-      destroy: vi.fn(),
+      init: (app, options) => {
+        if (!options) return;
+
+        app.test = options.initial;
+      },
     });
 
     expect(factory).toBeDefined();
     expect(factory).toBeInstanceOf(Function);
 
     expect(factory()).toBeDefined();
+
+    const app = defineWrakerApp({
+      plugins: [factory({ initial: 1 })],
+    });
+
+    expect(app.test).toBe(1);
   });
 });
