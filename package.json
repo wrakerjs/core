@@ -43,7 +43,7 @@
     "url": "git+https://github.com/wrakerjs/core.git"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.5.5",
