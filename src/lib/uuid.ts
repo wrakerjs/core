@@ -5,6 +5,8 @@
  *
  * @see https://stackoverflow.com/a/2117523/12828306
  * @license "CC BY-SA 4.0"
+ * 
+ * @internal
  */
 
 export function uuid() {

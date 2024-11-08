@@ -1,0 +1,51 @@
+name: Triage Issues and Pull Requests
+on:
+  issues:
+    types:
+      - reopened
+      - opened
+  pull_request:
+    types:
+      - opened
+      - reopened
+permissions:
+  issues: write
+  pull-requests: write
+jobs:
+  label_issues:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh issue edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          LABELS: triage
+        if: github.event_name == 'issues'
+
+      - run: gh pr edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.number }}
+          LABELS: triage
+        if: github.event_name == 'pull_request'
+
+  assign_issues:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh issue edit "$NUMBER" --add-assignee "$ASSIGNEE"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          ASSIGNEE: josselinonduty
+        if: github.event_name == 'issues'
+
+      - run: gh pr edit "$NUMBER" --add-assignee "$ASSIGNEE"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.number }}
+          ASSIGNEE: josselinonduty
+        if: github.event_name == 'pull_request'
