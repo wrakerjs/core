@@ -177,4 +177,13 @@ describe("Wraker", () => {
 
     await expect(request).toTimeOut(100);
   });
+
+  it("should terminate", async () => {
+    const terminateSpy = vi.spyOn(Worker.prototype, "terminate");
+
+    const instance = new Wraker("data:application/javascript,");
+    instance.kill();
+
+    expect(terminateSpy).toHaveBeenCalledOnce();
+  })
 });

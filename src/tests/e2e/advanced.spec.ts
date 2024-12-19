@@ -1,4 +1,4 @@
-import { it, describe, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { Wraker } from "../..";
 
 import workerUrl from "../fixtures/advanced?url";
