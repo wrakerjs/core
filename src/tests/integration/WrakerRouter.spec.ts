@@ -1,4 +1,4 @@
-import { it, describe, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   type LayerMethod,
