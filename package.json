@@ -47,7 +47,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.5.5",
-    "@vitest/browser": "^2.0.4",
+    "@vitest/browser": "^3.0.6",
     "@vitest/coverage-istanbul": "^2.0.5",
     "esbuild": "^0.24.0",
     "playwright": "^1.46.0",
