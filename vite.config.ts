@@ -24,12 +24,15 @@ export default defineConfig({
       screenshotFailures: false,
       instances: [
         {
+          name: "chromium",
           browser: "chromium",
         },
         {
+          name: "firefox",
           browser: "firefox",
         },
         {
+          name: "webkit",
           browser: "webkit",
         },
       ],
