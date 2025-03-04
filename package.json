@@ -1,6 +1,6 @@
 {
   "name": "@wraker/core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "./dist/wraker.js",
   "module": "./dist/wraker.mjs",
   "types": "./dist/wraker.d.ts",
@@ -10,9 +10,9 @@
   "exports": {
     ".": {
       "types": "./dist/wraker.d.ts",
+      "node": "./dist/wraker.js",
       "import": "./dist/wraker.mjs",
       "require": "./dist/wraker.js",
-      "node": "./dist/wraker.js",
       "default": "./dist/wraker.js"
     }
   },
@@ -43,20 +43,20 @@
     "url": "git+https://github.com/wrakerjs/core.git"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
     "@types/js-cookie": "^3.0.6",
-    "@types/node": "^22.5.5",
-    "@vitest/browser": "^2.0.4",
-    "@vitest/coverage-istanbul": "^2.0.5",
-    "esbuild": "^0.24.0",
-    "playwright": "^1.46.0",
+    "@types/node": "^22.13.9",
+    "@vitest/browser": "^3.0.7",
+    "@vitest/coverage-istanbul": "^3.0.7",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.50.1",
     "rollup": "^4.19.0",
     "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "typedoc": "^0.26.5",
+    "rollup-plugin-esbuild": "^6.2.1",
+    "typedoc": "^0.27.9",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.4"
+    "vitest": "^3.0.7"
   },
   "dependencies": {
     "js-cookie": "^3.0.5"
