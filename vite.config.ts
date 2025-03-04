@@ -1,4 +1,3 @@
-import path from "path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -18,12 +17,22 @@ export default defineConfig({
     },
 
     browser: {
-      name: "chromium",
       enabled: true,
       headless: true,
       isolate: true,
       provider: "playwright",
       screenshotFailures: false,
+      instances: [
+        {
+          browser: "chromium",
+        },
+        {
+          browser: "firefox",
+        },
+        {
+          browser: "webkit",
+        },
+      ],
     },
   },
 
