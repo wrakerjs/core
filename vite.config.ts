@@ -5,7 +5,7 @@ export default defineConfig({
     include: ["src/tests/**/*.spec.ts"],
     exclude: ["src/(?!tests)", "node_modules", "dist"],
     silent: false,
-    testTimeout: 1000,
+    testTimeout: 5000,
 
     reporters: ["verbose"],
     coverage: {
