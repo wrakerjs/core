@@ -10,9 +10,9 @@
   "exports": {
     ".": {
       "types": "./dist/wraker.d.ts",
-      "node": "./dist/wraker.js",
       "import": "./dist/wraker.mjs",
       "require": "./dist/wraker.js",
+      "node": "./dist/wraker.js",
       "default": "./dist/wraker.js"
     }
   },
