@@ -176,4 +176,11 @@ export class Wraker {
       });
     });
   }
+
+  /**
+   * Terminate the worker
+   */
+  public kill(): void {
+    this._worker.terminate();
+  }
 }

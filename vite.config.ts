@@ -1,4 +1,3 @@
-import path from "path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -6,7 +5,7 @@ export default defineConfig({
     include: ["src/tests/**/*.spec.ts"],
     exclude: ["src/(?!tests)", "node_modules", "dist"],
     silent: false,
-    testTimeout: 1000,
+    testTimeout: 5000,
 
     reporters: ["verbose"],
     coverage: {
@@ -18,12 +17,25 @@ export default defineConfig({
     },
 
     browser: {
-      name: "chromium",
       enabled: true,
       headless: true,
       isolate: true,
       provider: "playwright",
       screenshotFailures: false,
+      instances: [
+        {
+          name: "chromium",
+          browser: "chromium",
+        },
+        {
+          name: "firefox",
+          browser: "firefox",
+        },
+        {
+          name: "webkit",
+          browser: "webkit",
+        },
+      ],
     },
   },
 
