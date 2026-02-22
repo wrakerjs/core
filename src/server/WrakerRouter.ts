@@ -9,8 +9,9 @@ import {
   type LayerEventPath,
   type LayerMethod,
   type WrakerAppNext,
-} from "./Handler";
+} from "./handler";
 import { WrakerAppRequest } from "./WrakerAppRequest";
+import type { WrakerAppResponse } from "./WrakerAppResponse";
 
 /**
  * Router options
@@ -70,7 +71,7 @@ export class WrakerRouter extends EventTarget {
             detail: {
               handler,
             },
-          })
+          }),
         );
 
         handler.dispatchEvent(
@@ -78,7 +79,7 @@ export class WrakerRouter extends EventTarget {
             detail: {
               app: this,
             },
-          })
+          }),
         );
       }
     });
@@ -467,12 +468,23 @@ export class WrakerRouter extends EventTarget {
 
         if (nextError) throw nextError;
       } catch (error) {
-        request.res.sendError(error);
+        this._onError(error, request.res);
         return;
       }
     }
 
     request.res.status(404);
     request.res.sendError("Not Found");
+  }
+
+  /**
+   * Called when an error occurs during request processing.
+   * Can be overridden in subclasses (e.g. WrakerApp) to add lifecycle hooks.
+   *
+   * @param error - The error that occurred.
+   * @param res - The response object.
+   */
+  protected _onError(error: unknown, res: WrakerAppResponse): void {
+    res.sendError(error);
   }
 }

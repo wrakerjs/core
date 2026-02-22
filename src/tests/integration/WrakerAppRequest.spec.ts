@@ -1,12 +1,7 @@
 import { describe, expect, it } from "vitest";
 import "../utils";
 
-import {
-  WrakerApp,
-  WrakerAppRequest,
-  WrakerAppResponse,
-  WrakerHeaders,
-} from "../..";
+import { WrakerApp, WrakerAppRequest, WrakerAppResponse } from "../..";
 
 describe("WrakerAppRequest", () => {
   it("should initialize properly", () => {

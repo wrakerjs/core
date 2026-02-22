@@ -1,5 +1,5 @@
-import { WrakerApp } from "../../server";
-const app = new WrakerApp();
+import { defineWrakerApp } from "../../server";
+const app = defineWrakerApp();
 
 const items = new Map<string | number, any>();
 

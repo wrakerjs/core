@@ -30,15 +30,15 @@ It makes it easier to manage the communication between the main thread and the w
 Create a new file `worker.js`:
 
 ```js
-import { WrakerApp } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
+import { defineWrakerApp } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
 
-const app = new WrakerApp();
+const app = defineWrakerApp();
 
 app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
-app.listen();
+await app.listen();
 ```
 
 Then, create a new file `main.js`:
@@ -91,7 +91,7 @@ You can take advantage of this feature to create a worker with Wraker:
 
 ```js
 // worker.js
-import { WrakerApp } from "wraker";
+import { defineWrakerApp } from "wraker";
 ```
 
 ```js
@@ -140,6 +140,118 @@ const worker = new Wraker(myWorkerUrl, {
 ```
 
 > ℹ️ You may be able to use the `?worker` or `?url` shorthands, but it is using workarounds and may not work as expected. Refer to [this discussion](https://github.com/vitejs/vite/issues/13680) for details.
+
+## Plugins
+
+Wraker supports a plugin system on **both sides** of the worker boundary:
+
+- **Server-side** (`WrakerApp`, inside the worker) - extend the app with new methods, intercept incoming messages, hook into the request lifecycle.
+- **Client-side** (`Wraker`, in the main thread) - extend the client with new methods, intercept outgoing/incoming messages.
+
+### Using plugins
+
+Use the `defineWrakerApp` / `defineWraker` factory functions with a `plugins` array. The factories ensure TypeScript infers the type extensions contributed by each plugin.
+
+```ts
+// worker.ts  (server-side, runs inside the Web Worker)
+import { defineWrakerApp } from "@wraker/core";
+import { myPluginServer } from "my-wraker-plugin";
+
+const app = defineWrakerApp({
+  plugins: [myPluginServer({ greeting: "Hello" })],
+});
+
+app.get("/demo", (req, res) => {
+  res.send(app.greet("world"));
+});
+
+await app.listen();
+```
+
+```ts
+// main.ts  (client-side, runs in the main thread)
+import { defineWraker } from "@wraker/core";
+import { myPluginClient } from "my-wraker-plugin";
+
+const wraker = defineWraker(new URL("worker.ts", import.meta.url), {
+  type: "module",
+  plugins: [myPluginClient()],
+});
+
+// `wraker.greet` is fully typed
+console.log(wraker.greet("world"));
+
+const response = await wraker.fetch("/demo");
+console.log(response.body);
+```
+
+### Creating a plugin
+
+Use `defineWrakerAppPlugin` (server) and `defineWrakerPlugin` (client) to create reusable plugin factories. Plugins can:
+
+- **Extend** the instance with new properties/methods via the `Extension` type parameter.
+- **Accept options** via the `Options` type parameter.
+- **Hook into lifecycle events** by implementing one or more hook callbacks.
+- **Stop propagation** by returning `false` from any hook.
+
+```ts
+// my-wraker-plugin/server.ts
+import { defineWrakerAppPlugin } from "@wraker/core";
+
+type Extension = { greet: (name: string) => string };
+type Options = { greeting: string };
+
+export const myPluginServer = defineWrakerAppPlugin<Extension, Options>({
+  name: "my-plugin",
+  init(app, options) {
+    app.greet = (name) => `${options?.greeting ?? "Hi"}, ${name}!`;
+  },
+});
+```
+
+```ts
+// my-wraker-plugin/client.ts
+import { defineWrakerPlugin } from "@wraker/core";
+
+type Extension = { greet: (name: string) => string };
+
+export const myPluginClient = defineWrakerPlugin<Extension>({
+  name: "my-plugin",
+  init(wraker) {
+    wraker.greet = (name) => `Hello from client, ${name}!`;
+  },
+});
+```
+
+### Available lifecycle hooks
+
+#### Server-side (`WrakerAppPlugin`)
+
+| Hook                     | When it runs                                            |
+| ------------------------ | ------------------------------------------------------- |
+| `init`                   | Immediately when the app is constructed                 |
+| `onListen`               | When `app.listen()` is called                           |
+| `onBeforeMessageHandled` | Before each incoming message is processed               |
+| `onAfterMessageHandled`  | After each incoming message has been processed          |
+| `onError`                | When a route handler throws an error                    |
+| `onMount`                | When a sub-router or sub-app is mounted via `app.use()` |
+| `destroy`                | When `app.destroy()` is called                          |
+
+Returning `false` from any hook stops the remaining plugins in the chain from running for that event. For `onBeforeMessageHandled`, returning `false` also prevents the request from being processed.
+
+#### Client-side (`WrakerPlugin`)
+
+| Hook                      | When it runs                                        |
+| ------------------------- | --------------------------------------------------- |
+| `init`                    | Immediately when the Wraker instance is constructed |
+| `onBeforeMessageSent`     | Before a `fetch` call posts a message to the worker |
+| `onAfterMessageSent`      | After the message has been posted to the worker     |
+| `onBeforeMessageReceived` | Before an incoming worker message is handled        |
+| `onAfterMessageReceived`  | After an incoming worker message has been handled   |
+| `onError`                 | When a plugin hook throws an error                  |
+| `destroy`                 | When `wraker.kill()` is called                      |
+
+Returning `false` from any hook stops the remaining plugins in the chain. For `onBeforeMessageSent`, returning `false` prevents the message from being sent. For `onBeforeMessageReceived`, returning `false` prevents the default response handling (useful for intercepting custom message types).
 
 ## Contributing
 

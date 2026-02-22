@@ -1,6 +1,5 @@
-import { WrakerApp } from "../../server";
-
-const app = new WrakerApp();
+import { defineWrakerApp } from "../../server";
+const app = defineWrakerApp();
 
 app.get("/", (_, res) => {
   res.send({
