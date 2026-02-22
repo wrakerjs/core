@@ -1,11 +1,12 @@
 import type { WrakerRequest } from "../common";
 import type { Exact, ExtractKeysByType, ExtractTypeByKey } from "../lib";
 import type { WrakerApp } from "./WrakerApp";
+import type { WrakerRouter } from "./WrakerRouter";
 
 export type WrakerAppPluginHook<
   Extension = {},
   Options = {},
-  Args extends any[] = []
+  Args extends any[] = [],
 > = (
   app: WrakerApp & Extension,
   options?: Options,
@@ -13,7 +14,7 @@ export type WrakerAppPluginHook<
 ) => boolean | void;
 
 export type WrakerAppPluginFactory<Extension, Options> = (
-  options?: Exact<Options>
+  options?: Exact<Options>,
 ) => WrakerAppPlugin<Extension, Options>;
 
 export interface WrakerAppPlugin<Extension = {}, Options = {}> {
@@ -33,13 +34,37 @@ export interface WrakerAppPlugin<Extension = {}, Options = {}> {
   destroy?: WrakerAppPluginHook<Extension, Options, []>;
 
   /**
-   * Called before the app is mounted.
+   * Called when the app starts listening.
+   */
+  onListen?: WrakerAppPluginHook<Extension, Options, []>;
+
+  /**
+   * Called before a message is handled.
    */
   onBeforeMessageHandled?: WrakerAppPluginHook<
     Extension,
     Options,
     [MessageEvent<Partial<WrakerRequest>>]
   >;
+
+  /**
+   * Called after a message has been handled.
+   */
+  onAfterMessageHandled?: WrakerAppPluginHook<
+    Extension,
+    Options,
+    [MessageEvent<Partial<WrakerRequest>>]
+  >;
+
+  /**
+   * Called when an error occurs during request processing.
+   */
+  onError?: WrakerAppPluginHook<Extension, Options, [unknown]>;
+
+  /**
+   * Called when a sub-router or sub-app is mounted.
+   */
+  onMount?: WrakerAppPluginHook<Extension, Options, [WrakerRouter]>;
 }
 
 export type WrakerAppPluginHookKey = ExtractKeysByType<
@@ -51,11 +76,12 @@ export type WrakerAppPluginHookArgs<
   K extends ExtractKeysByType<
     WrakerAppPlugin,
     WrakerAppPluginHook<any, any, any>
-  >
-> = ExtractTypeByKey<
-  WrakerAppPlugin,
-  K,
-  WrakerAppPluginHook<any, any, any>
-> extends WrakerAppPluginHook<any, any, infer Args> | undefined
-  ? Args
-  : never;
+  >,
+> =
+  ExtractTypeByKey<
+    WrakerAppPlugin,
+    K,
+    WrakerAppPluginHook<any, any, any>
+  > extends WrakerAppPluginHook<any, any, infer Args> | undefined
+    ? Args
+    : never;

@@ -5,6 +5,7 @@ import type {
   WrakerAppPluginHookArgs,
   WrakerAppPluginHookKey,
 } from "./WrakerAppPlugin";
+import type { WrakerAppResponse } from "./WrakerAppResponse";
 import { WrakerRouter, WrakerRouterOptions } from "./WrakerRouter";
 
 export interface WrakerAppOptions extends WrakerRouterOptions {
@@ -23,11 +24,14 @@ export class WrakerApp extends WrakerRouter {
   private _mountCallbacks: Array<Function> = new Array();
   private _plugins: WrakerAppPlugin<any, any>[];
   private _ready: boolean = false;
+  private _messageHandler: (
+    event: MessageEvent<Partial<WrakerRequest>>,
+  ) => void;
 
   /**
-   * Creates a new WrakerAppBaseinstance.
+   * Creates a new WrakerApp instance.
    *
-   * @param options - The options to configure the WrakerAppBaseinstance.
+   * @param options - The options to configure the WrakerApp instance.
    */
   constructor(options?: Partial<WrakerAppOptions>) {
     super(options);
@@ -40,15 +44,14 @@ export class WrakerApp extends WrakerRouter {
       this._mountCallbacks.forEach((callback) => {
         if (event.detail.handler instanceof WrakerApp) callback(event.detail);
       });
+      this._lifecycleEmit("onMount", event.detail.handler);
     });
 
-    globalThis.addEventListener("message", (event: MessageEvent<Partial<WrakerRequest>>) => {
+    this._messageHandler = (event: MessageEvent<Partial<WrakerRequest>>) => {
       if (!this._ready) return;
-      this._lifecycleEmit("onBeforeMessageHandled", event);
-    });
 
-    globalThis.addEventListener("message", (event: MessageEvent<Partial<WrakerRequest>>) => {
-      if (!this._ready) return;
+      const prevented = this._lifecycleEmit("onBeforeMessageHandled", event);
+      if (prevented === false) return;
 
       const data = event.data;
       if (!data) return;
@@ -61,29 +64,51 @@ export class WrakerApp extends WrakerRouter {
         path: data.path,
         headers: headers || {},
         body: data.body,
+      }).then(() => {
+        this._lifecycleEmit("onAfterMessageHandled", event);
       });
-    });
+    };
+
+    globalThis.addEventListener("message", this._messageHandler);
   }
 
   /**
    * Executes the lifecycle hook for the specified event.
+   * Returns false if any plugin hook returns false (stopping propagation).
+   * Returns true if all hooks ran without interruption.
    *
    * @param hook - The lifecycle hook to execute.
    * @param args - The arguments to pass to the hook.
+   * @returns false if propagation was stopped, true otherwise.
    */
   private _lifecycleEmit<K extends WrakerAppPluginHookKey>(
     hook: K,
     ...args: WrakerAppPluginHookArgs<K>
-  ) {
+  ): boolean {
     const plugins = this._plugins.filter((plugin) => plugin[hook]);
-    plugins.forEach((plugin) => {
+    for (const plugin of plugins) {
       const hookFn = plugin[hook] as WrakerAppPluginHook<any, any, any>;
+      let result: boolean | void;
       if (args.length > 0) {
-        hookFn(this, plugin.options, ...args);
+        result = hookFn(this, plugin.options, ...args);
       } else {
-        hookFn(this, plugin.options);
+        result = hookFn(this, plugin.options);
       }
-    });
+      if (result === false) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Called when an error occurs during request processing.
+   * Emits the onError lifecycle hook before delegating to the base implementation.
+   *
+   * @param error - The error that occurred.
+   * @param res - The response object.
+   */
+  protected override _onError(error: unknown, res: WrakerAppResponse): void {
+    this._lifecycleEmit("onError", error);
+    super._onError(error, res);
   }
 
   /**
@@ -117,8 +142,23 @@ export class WrakerApp extends WrakerRouter {
     if (this._ready) throw new Error("WrakerApp is already listening");
     this._ready = true;
 
+    this._lifecycleEmit("onListen");
+
     if (callback) callback();
     else return Promise.resolve();
+  }
+
+  /**
+   * Stops the application and removes the message listener.
+   * Calls the destroy lifecycle hook on all plugins.
+   *
+   * @throws Error if the app is not currently listening.
+   */
+  public destroy(): void {
+    if (!this._ready) throw new Error("WrakerApp is not listening");
+    this._lifecycleEmit("destroy");
+    globalThis.removeEventListener("message", this._messageHandler);
+    this._ready = false;
   }
 
   //   public render(name: string, options: any, callback: Function) {}
