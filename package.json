@@ -11,9 +11,7 @@
     ".": {
       "types": "./dist/wraker.d.ts",
       "import": "./dist/wraker.mjs",
-      "require": "./dist/wraker.js",
-      "node": "./dist/wraker.js",
-      "default": "./dist/wraker.js"
+      "require": "./dist/wraker.js"
     }
   },
   "scripts": {
