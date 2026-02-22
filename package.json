@@ -41,21 +41,22 @@
     "url": "git+https://github.com/wrakerjs/core.git"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.2",
-    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@types/js-cookie": "^3.0.6",
-    "@types/node": "^22.14.1",
-    "@vitest/browser": "^3.1.2",
-    "@vitest/coverage-istanbul": "^3.1.2",
-    "@vitest/ui": "^3.1.2",
-    "esbuild": "^0.25.2",
-    "playwright": "^1.52.0",
-    "rollup": "^4.40.0",
+    "@types/node": "^24.10.3",
+    "@vitest/browser": "^4.0.18",
+    "@vitest/browser-playwright": "^4.0.18",
+    "@vitest/coverage-istanbul": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
+    "esbuild": "^0.27.3",
+    "playwright": "1.58.2",
+    "rollup": "^4.59.0",
     "rollup-plugin-dts": "^6.2.1",
     "rollup-plugin-esbuild": "^6.2.1",
-    "typedoc": "^0.28.3",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "typedoc": "^0.28.17",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "js-cookie": "^3.0.5"
