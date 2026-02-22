@@ -30,15 +30,15 @@ It makes it easier to manage the communication between the main thread and the w
 Create a new file `worker.js`:
 
 ```js
-import { WrakerApp } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
+import { defineWrakerApp } from "https://cdn.jsdelivr.net/npm/@wraker/core/+esm";
 
-const app = new WrakerApp();
+const app = defineWrakerApp();
 
 app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
-app.listen();
+await app.listen();
 ```
 
 Then, create a new file `main.js`:
@@ -91,7 +91,7 @@ You can take advantage of this feature to create a worker with Wraker:
 
 ```js
 // worker.js
-import { WrakerApp } from "wraker";
+import { defineWrakerApp } from "wraker";
 ```
 
 ```js
@@ -140,6 +140,49 @@ const worker = new Wraker(myWorkerUrl, {
 ```
 
 > ℹ️ You may be able to use the `?worker` or `?url` shorthands, but it is using workarounds and may not work as expected. Refer to [this discussion](https://github.com/vitejs/vite/issues/13680) for details.
+
+## Plugins
+
+Wraker supports a plugin system that lets you extend `WrakerApp` with new capabilities and tap into its lifecycle.
+
+### Using a plugin
+
+Pass plugins when creating the app with the `defineWrakerApp` factory function. Using the factory function (instead of `new WrakerApp()`) ensures that TypeScript infers the type extensions contributed by each plugin.
+
+```ts
+// worker.ts
+import { defineWrakerApp } from "@wraker/core";
+import { logger } from "@wraker/my-logger";
+
+const app = defineWrakerApp({
+  plugins: [logger()],
+});
+
+app.logger.info("Hello from the logger plugin!");
+```
+
+### Creating a plugin
+
+Use `defineWrakerAppPlugin` to create a reusable plugin factory. Plugins can:
+
+- **Extend** the `WrakerApp` instance with new properties/methods via the `Extension` type parameter.
+- **Accept options** via the `Options` type parameter.
+- **Hook into lifecycle events** by implementing one or more hook callbacks.
+- **Stop propagation** by returning `false` from any hook.
+
+### Available lifecycle hooks
+
+| Hook                     | When it runs                                            |
+| ------------------------ | ------------------------------------------------------- |
+| `init`                   | Immediately when the app is constructed                 |
+| `onListen`               | When `app.listen()` is called                           |
+| `onBeforeMessageHandled` | Before each incoming message is processed               |
+| `onAfterMessageHandled`  | After each incoming message has been processed          |
+| `onError`                | When a route handler throws an error                    |
+| `onMount`                | When a sub-router or sub-app is mounted via `app.use()` |
+| `destroy`                | When `app.destroy()` is called                          |
+
+Returning `false` from any hook stops the remaining plugins in the chain from running for that event. For `onBeforeMessageHandled`, returning `false` also prevents the request from being processed.
 
 ## Contributing
 
